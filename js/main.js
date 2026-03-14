@@ -151,14 +151,22 @@ function lockButton(btn, locked) {
   }
 }
 
-/** Writes the guest name into all relevant DOM elements. */
+/**
+ * Writes the guest name into all relevant DOM elements.
+ * The RSVP name field is readonly — we set its value directly
+ * regardless of any existing content since it can't be user-edited.
+ */
 function setGuestNameInDOM(name) {
+  // Cover page guest name
   const coverGuest = document.querySelector('.cover-guest');
   if (coverGuest) coverGuest.textContent = name;
 
-  // Pre-fill the RSVP name field so they don't have to type it
+  // RSVP locked name field — always overwrite with the verified name
   const rsvpName = document.getElementById('rsvp-name');
-  if (rsvpName && !rsvpName.value) rsvpName.value = name;
+  if (rsvpName) {
+    rsvpName.value = name;
+    rsvpName.title = `Invitation sent to: ${name}`; // tooltip on hover
+  }
 }
 
 /**
@@ -370,16 +378,12 @@ async function submitRSVP() {
   const phoneInput  = document.getElementById('rsvp-phone');
   const submitBtn   = document.querySelector('#rsvp-section .btn-submit');
 
-  const name   = nameInput.value.trim();
+  // Name comes from the locked field — always the ?to= value
+  const name   = guestName;   // use global, not the field (tamper-proof)
   const pax    = parseInt(guestsInput.value) || 1;
   const phone  = phoneInput.value.trim();
 
   // --- Client-side validation ---
-  if (!name) {
-    alert('Please enter your full name.');
-    return;
-  }
-
   if (pax < 1) {
     alert('Number of guests must be at least 1.');
     return;
@@ -400,9 +404,9 @@ async function submitRSVP() {
     console.log('[DEV] Mock RSVP submit:', { guestName, name, pax, phone, attending: rsvpChoice });
     await new Promise(r => setTimeout(r, 800)); // fake network delay
     document.getElementById('rsvp-success').classList.add('show');
-    nameInput.value = '';
+    // nameInput is locked — leave it
     guestsInput.value = '';
-    phoneInput.value = '';
+    phoneInput.value  = '';
     submitBtn.disabled = false;
     submitBtn.querySelector('span').textContent = 'Confirm Attendance';
     return;
@@ -431,7 +435,7 @@ async function submitRSVP() {
     if (result.result === 'success') {
       // Show success, clear form
       document.getElementById('rsvp-success').classList.add('show');
-      nameInput.value   = '';
+      // nameInput is locked — don't clear it, leave the name visible
       guestsInput.value = '';
       phoneInput.value  = '';
     } else {

@@ -279,3 +279,34 @@ textarea.f-input {
   color: #fffaf8;
   padding: 8px;
 }
+
+/* ── LOCKED / READ-ONLY INPUT ── */
+/*
+   Used for the RSVP name field — pre-filled from the URL
+   and readonly so guests can't change it.
+   Visually distinct from editable fields: dimmer, no focus ring,
+   a small lock icon via background SVG.
+*/
+.f-input--locked {
+  opacity: 0.75;
+  cursor: default;
+  pointer-events: none;          /* belt-and-suspenders: block all interaction */
+
+  /* Subtle lock icon on the right */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='16' viewBox='0 0 14 16'%3E%3Crect x='1' y='7' width='12' height='9' rx='2' stroke='%23d4a843' stroke-width='1.2' fill='none'/%3E%3Cpath d='M4 7V5a3 3 0 0 1 6 0v2' stroke='%23d4a843' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 38px;
+
+  /* Slightly different border style to signal non-editable */
+  border-style: dashed;
+  border-color: rgba(212, 168, 67, 0.35);  /* gold dashed instead of pink solid */
+  color: var(--gold-light);
+  font-style: italic;
+}
+
+/* Override focus styles — locked fields shouldn't show a focus ring */
+.f-input--locked:focus {
+  border-color: rgba(212, 168, 67, 0.35);
+  outline: none;
+}
