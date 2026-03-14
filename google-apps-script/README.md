@@ -50,7 +50,11 @@ Leave it empty — the script will create the headers automatically on first sub
 6. **Copy the Web App URL** — it looks like:
    ```
    https://script.google.com/macros/s/AKfycb.../exec
+
+   https://script.google.com/macros/s/AKfycbxvKiePNo_nbIKxNUsRS7m1qscsIbGcfXKwghoMW07h5Z2g4JVkqwJUhnO3Yw8NZBaJYA/exec
    ```
+Deployment ID
+AKfycbxvKiePNo_nbIKxNUsRS7m1qscsIbGcfXKwghoMW07h5Z2g4JVkqwJUhnO3Yw8NZBaJYA
 
 ---
 

@@ -25,7 +25,7 @@
  * Get it from: Apps Script → Deploy → Manage deployments → copy URL
  * It looks like: https://script.google.com/macros/s/AKfycb.../exec
  */
-const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE'; // ← CHANGE THIS
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvKiePNo_nbIKxNUsRS7m1qscsIbGcfXKwghoMW07h5Z2g4JVkqwJUhnO3Yw8NZBaJYA/exec'; // ← CHANGE THIS
 
 /**
  * Event date/time in ISO 8601 format with timezone offset.
@@ -38,7 +38,7 @@ const EVENT_DATE_ISO = '2026-04-18T18:00:00+07:00'; // ← CHANGE if needed
  * Skips the Apps Script network call and uses mock data instead.
  * ← Set to FALSE before deploying to production!
  */
-const DEV_MODE    = true;  // ← CHANGE to false before going live
+const DEV_MODE    = false;  // ← CHANGE to false before going live
 const DEV_MAX_PAX = 4;     // ← mock max pax used during local testing
 
 
