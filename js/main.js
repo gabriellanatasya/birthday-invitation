@@ -25,7 +25,7 @@
  * Get it from: Apps Script → Deploy → Manage deployments → copy URL
  * It looks like: https://script.google.com/macros/s/AKfycb.../exec
  */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNFhGrM4ZXGaWIwWPMhsMcjrkc_yY-avkPiju2x1eE1Fep8vJ2ygpNamh5pHbs0jqd6A/exec'; // ← CHANGE THIS
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzht7VjQM87pFOW9rrV33uPvq9mP8yhJp-yhOj2xHXSV_bUvMzn7EzO58Y8Q8QgzJ4d_A/exec'; // ← CHANGE THIS
 
 /**
  * Event date/time in ISO 8601 format with timezone offset.
@@ -59,59 +59,95 @@ let guestMaxPax = 1;       // max pax returned from Google Sheets
 ════════════════════════════════════════ */
 
 async function initGuest() {
+  const btn    = document.getElementById('btn-open');
+  const status = document.getElementById('cover-status');
+
   // --- 1a. Read name from URL ---
-  const params = new URLSearchParams(window.location.search);
+  const params  = new URLSearchParams(window.location.search);
   const rawName = params.get('to');
 
-  if (rawName) {
-    guestName = decodeURIComponent(rawName).trim();
+  // No ?to= param at all — show a gentle hint, leave button disabled
+  if (!rawName) {
+    setCoverStatus('no-param', '✦ Please use your personal invitation link.');
+    lockButton(btn, true);
+    return;
   }
 
-  // Apply name to cover immediately (don't wait for network)
+  guestName = decodeURIComponent(rawName).trim();
   setGuestNameInDOM(guestName);
 
   // --- 1b. DEV MODE: skip network, use mock data ---
   if (DEV_MODE) {
-    console.log(`[DEV] Skipping Apps Script lookup. Mock maxPax = ${DEV_MAX_PAX}`);
+    console.log(`[DEV] Mock guest valid. maxPax = ${DEV_MAX_PAX}`);
     guestMaxPax = DEV_MAX_PAX;
-    applyMaxPaxToForm(guestMaxPax);
+    setCoverStatus('', ''); // clear status
+    lockButton(btn, false);
     return;
   }
 
-  // --- 1c. Fetch max pax from Google Sheets via Apps Script ---
-  try {
-    showRsvpLoader(true);
+  // --- 1c. Validate guest against Google Sheets ---
+  lockButton(btn, true);
+  setCoverStatus('checking', '✦ Checking your invitation…');
 
-    // Apps Script Web Apps redirect once — 'follow' handles that automatically.
-    // We also pass credentials: 'omit' to avoid CORS preflight issues.
+  try {
     const url      = `${APPS_SCRIPT_URL}?name=${encodeURIComponent(guestName)}`;
-    const response = await fetch(url, {
-      redirect:    'follow',
-      credentials: 'omit',
-    });
-    const data = await response.json();
+    const response = await fetch(url, { redirect: 'follow', credentials: 'omit' });
+    const data     = await response.json();
 
     if (data.found) {
+      // ✅ Valid guest — unlock the button
       guestMaxPax = data.maxPax;
-
-      // Use the sheet's casing of the name if available
       if (data.name) {
         guestName = data.name;
         setGuestNameInDOM(guestName);
       }
+      setCoverStatus('', ''); // clear the checking message
+      lockButton(btn, false);
+
     } else {
-      // Guest not in sheet — still works, defaults to 1 pax
-      console.warn('Guest not found in sheet, defaulting to 1 pax');
-      guestMaxPax = 1;
+      // ❌ Name not in sheet — block the button, show warning
+      setCoverStatus(
+        'invalid',
+        '✦ We could not find your invitation. Please check your link or contact us.'
+      );
+      lockButton(btn, true);
     }
 
   } catch (err) {
-    // Network error — degrade gracefully
+    // Network error — fail open so guests aren't blocked by a connectivity issue
     console.error('Could not reach Apps Script:', err);
+    setCoverStatus('', '');
+    lockButton(btn, false);
     guestMaxPax = 1;
-  } finally {
-    showRsvpLoader(false);
-    applyMaxPaxToForm(guestMaxPax);
+  }
+}
+
+/**
+ * Sets the text and style class of the cover status message.
+ * @param {'checking'|'invalid'|'no-param'|''} cls
+ * @param {string} message
+ */
+function setCoverStatus(cls, message) {
+  const status = document.getElementById('cover-status');
+  if (!status) return;
+  status.textContent = message;
+  status.className   = cls;
+}
+
+/**
+ * Enables or disables the Open Invitation button.
+ * Also swaps the label text to show loading feedback.
+ * @param {HTMLElement} btn
+ * @param {boolean} locked
+ */
+function lockButton(btn, locked) {
+  if (!btn) return;
+  btn.disabled = locked;
+  if (locked) {
+    btn.classList.add('loading');
+  } else {
+    btn.classList.remove('loading');
+    document.getElementById('btn-open-label').textContent = 'Open Invitation';
   }
 }
 
@@ -260,6 +296,8 @@ function openInvitation() {
 
     startCountdown();
     initReveal();
+    applyMaxPaxToForm(guestMaxPax); // build the pax dropdown now that RSVP section is visible
+    loadWishes();                   // fetch wishes from Sheets and build carousel
   }, 900);
 }
 
@@ -411,48 +449,327 @@ async function submitRSVP() {
 
 
 /* ════════════════════════════════════════
-   7. WISHES WALL
+   7. WISHES — GOOGLE SHEETS + PEEK CAROUSEL
+
+   Layout: the active card sits centre-stage
+   at ~78% width. Adjacent cards peek in from
+   left and right so guests can see more exist.
+
+   Interaction:
+     • Swipe / drag  → move one card
+     • Arrow buttons → move one card
+     • Dot / pill    → jump to any card
 ════════════════════════════════════════ */
 
-const wishes = [
-  {
-    name: 'Budi & Keluarga',
-    text: 'Selamat ulang tahun yang ke-75! Semoga Ibu selalu sehat, bahagia, dan panjang umur.',
-  },
-  {
-    name: 'Tante Rina',
-    text: '75 tahun penuh cinta dan kebaikan. Semoga Tuhan selalu memberkati. Happy birthday!',
-  },
-];
+let wishList  = [];   // loaded from Sheets
+let wishIndex = 0;    // currently centred card
 
-function renderWishes() {
-  document.getElementById('wishes-wall').innerHTML = wishes
-    .map(w => `
-      <div class="wish-card">
-        <p class="wish-text">${escapeHtml(w.text)}</p>
-        <p class="wish-author">— ${escapeHtml(w.name)}</p>
-      </div>`)
-    .join('');
+// ── Card width as % of viewport (set once, read by CSS var) ─
+const CARD_W_PCT = 78; // percent of carousel container width
+const CARD_GAP   = 16; // px — must match CSS gap value
+
+// ── Load wishes from Apps Script ─────────────────────────────
+async function loadWishes() {
+  const wall = document.getElementById('wishes-wall');
+
+  if (DEV_MODE) {
+    wishList = [
+      { name: 'Budi & Keluarga', message: 'Selamat ulang tahun yang ke-75! Semoga Ibu selalu sehat, bahagia, dan panjang umur. Terima kasih atas semua kasih sayang yang diberikan.', timestamp: '' },
+      { name: 'Tante Rina',      message: '75 tahun penuh cinta dan kebaikan. Semoga Tuhan selalu memberkati dan memberikan kesehatan terbaik. Happy birthday!',  timestamp: '' },
+      { name: 'Pak Hendra',      message: 'Sehat selalu ya Bu, semoga panjang umur dan selalu bahagia bersama keluarga tercinta.',        timestamp: '' },
+      { name: 'Keluarga Besar',  message: 'Doa terbaik kami selalu menyertai Ibu. Semoga hari ulang tahun ini menjadi awal dari tahun yang penuh berkah.', timestamp: '' },
+      { name: 'Sarah & Tom',     message: 'Wishing you a wonderful 75th! May every day bring you joy and happiness.',                    timestamp: '' },
+    ];
+    renderCarousel();
+    return;
+  }
+
+  try {
+    const url  = `${APPS_SCRIPT_URL}?action=wishes`;
+    const res  = await fetch(url, { redirect: 'follow', credentials: 'omit' });
+    const data = await res.json();
+    wishList   = data.wishes || [];
+    renderCarousel();
+  } catch (err) {
+    console.error('Could not load wishes:', err);
+    wall.innerHTML = '<p class="wishes-empty">Could not load wishes. Please refresh.</p>';
+  }
 }
 
-function submitWish() {
-  const name = document.getElementById('wish-name').value.trim();
-  const msg  = document.getElementById('wish-msg').value.trim();
+// ── Build full carousel DOM ───────────────────────────────────
+function renderCarousel() {
+  const wall = document.getElementById('wishes-wall');
 
-  if (!name || !msg) {
+  if (!wishList.length) {
+    wall.innerHTML = '<p class="wishes-empty">Be the first to leave a wish! ✦</p>';
+    return;
+  }
+
+  wishIndex = Math.min(wishIndex, wishList.length - 1);
+
+  // Max 7 dots to avoid clutter; use pill-dots style
+  const dotCount = Math.min(wishList.length, 7);
+  const dots = Array.from({ length: dotCount }, (_, i) =>
+    `<button class="wish-dot ${i === wishIndex ? 'active' : ''}"
+       onclick="goToWish(${i})" aria-label="Wish ${i + 1}"></button>`
+  ).join('') + (wishList.length > 7 ? '<span class="wish-dot" style="opacity:0.2;cursor:default;pointer-events:none"></span>' : '');
+
+  wall.innerHTML = `
+    <div class="wishes-viewport" id="wishes-viewport">
+      <div class="wishes-track" id="wishes-track">
+        ${wishList.map((w, i) => `
+          <div class="wish-card ${i === wishIndex ? 'active' : ''}" data-index="${i}">
+            <p class="wish-text">${escapeHtml(w.message)}</p>
+            <div class="wish-footer">
+              <span class="wish-author">— ${escapeHtml(w.name)}</span>
+              ${w.timestamp ? `<span class="wish-date">${escapeHtml(w.timestamp)}</span>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="wish-arrows">
+      <button class="wish-arrow prev" id="wish-prev" onclick="moveWish(-1)" aria-label="Previous">&#8592;</button>
+      <button class="wish-arrow next" id="wish-next" onclick="moveWish(1)"  aria-label="Next">&#8594;</button>
+    </div>
+
+    <div class="wish-dots" id="wish-dots">${dots}</div>
+    <p class="wish-counter" id="wish-counter">${wishIndex + 1} / ${wishList.length}</p>
+  `;
+
+  setCssCardWidth();
+  applyCarouselPosition(false); // no animation on first render
+  initSwipe();
+
+  // Recalculate on window resize (orientation change on mobile)
+  window.addEventListener('resize', () => { setCssCardWidth(); applyCarouselPosition(false); }, { passive: true });
+}
+
+// ── Set --card-w CSS variable from live container width ───────
+function setCssCardWidth() {
+  const viewport = document.getElementById('wishes-viewport');
+  if (!viewport) return;
+  // Container width = section max-width minus horizontal padding
+  const containerW = viewport.offsetWidth;
+  const cardPx     = containerW * (CARD_W_PCT / 100);
+  // Write as px value into each card via the track element
+  document.querySelectorAll('.wish-card').forEach(c => {
+    c.style.flex = `0 0 ${cardPx}px`;
+    c.style.width = `${cardPx}px`;
+  });
+  // Store for translateX calculation
+  viewport._cardW = cardPx;
+}
+
+// ── Navigate to index ─────────────────────────────────────────
+function goToWish(index) {
+  wishIndex = Math.max(0, Math.min(index, wishList.length - 1));
+  applyCarouselPosition(true);
+}
+
+function moveWish(delta) {
+  goToWish(wishIndex + delta);
+}
+
+// ── Sync track translateX, active class, dots, arrows ─────────
+function applyCarouselPosition(animate) {
+  const track    = document.getElementById('wishes-track');
+  const viewport = document.getElementById('wishes-viewport');
+  if (!track || !viewport) return;
+
+  const cardW      = viewport._cardW || (viewport.offsetWidth * CARD_W_PCT / 100);
+  const step       = cardW + CARD_GAP;
+
+  /*
+    We want the active card to appear centred inside the viewport.
+    Offset = how much to shift the track LEFT so card[wishIndex] is centred.
+
+    centreOffset centres the first card:
+      (viewportWidth - cardWidth) / 2
+
+    Then each step shifts left by (cardW + gap).
+  */
+  const viewW        = viewport.offsetWidth;
+  const centreOffset = (viewW - cardW) / 2;
+  const translateX   = -(wishIndex * step) + centreOffset;
+
+  // Toggle CSS transition on/off for instant vs animated moves
+  track.style.transition = animate
+    ? 'transform 0.42s cubic-bezier(0.4, 0, 0.2, 1)'
+    : 'none';
+  track.style.transform = `translateX(${translateX}px)`;
+
+  // Active class → scale + opacity via CSS
+  document.querySelectorAll('.wish-card').forEach((c, i) => {
+    c.classList.toggle('active', i === wishIndex);
+  });
+
+  // Dots
+  document.querySelectorAll('.wish-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === wishIndex);
+  });
+
+  // Counter
+  const counter = document.getElementById('wish-counter');
+  if (counter) counter.textContent = `${wishIndex + 1} / ${wishList.length}`;
+
+  // Arrows
+  const prev = document.getElementById('wish-prev');
+  const next = document.getElementById('wish-next');
+  if (prev) prev.disabled = wishIndex === 0;
+  if (next) next.disabled = wishIndex === wishList.length - 1;
+}
+
+// ── Touch + mouse swipe ───────────────────────────────────────
+function initSwipe() {
+  const viewport = document.getElementById('wishes-viewport');
+  if (!viewport) return;
+
+  let startX   = 0;
+  let startT   = 0;
+  let dragging = false;
+  let moved    = false;
+
+  // ── Touch (mobile) ──
+  viewport.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startT = Date.now();
+  }, { passive: true });
+
+  viewport.addEventListener('touchmove', e => {
+    // Live-drag feedback: shift track with finger in real time
+    const dx    = e.touches[0].clientX - startX;
+    const track = document.getElementById('wishes-track');
+    const vp    = document.getElementById('wishes-viewport');
+    if (!track || !vp) return;
+
+    const cardW      = vp._cardW || vp.offsetWidth * CARD_W_PCT / 100;
+    const step       = cardW + CARD_GAP;
+    const centreOff  = (vp.offsetWidth - cardW) / 2;
+    const base       = -(wishIndex * step) + centreOff;
+
+    track.style.transition = 'none';
+    track.style.transform  = `translateX(${base + dx * 0.6}px)`; // 0.6 = resistance
+  }, { passive: true });
+
+  viewport.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dt = Date.now() - startT;
+    // Fast flick OR slow drag > 60px
+    if (Math.abs(dx) > 60 || (Math.abs(dx) > 30 && dt < 250)) {
+      moveWish(dx < 0 ? 1 : -1);
+    } else {
+      applyCarouselPosition(true); // snap back
+    }
+  }, { passive: true });
+
+  // ── Mouse drag (desktop) ──
+  viewport.addEventListener('mousedown', e => {
+    startX   = e.clientX;
+    startT   = Date.now();
+    dragging = true;
+    moved    = false;
+  });
+
+  viewport.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) moved = true;
+
+    const track = document.getElementById('wishes-track');
+    const vp    = document.getElementById('wishes-viewport');
+    if (!track || !vp) return;
+
+    const cardW     = vp._cardW || vp.offsetWidth * CARD_W_PCT / 100;
+    const step      = cardW + CARD_GAP;
+    const centreOff = (vp.offsetWidth - cardW) / 2;
+    const base      = -(wishIndex * step) + centreOff;
+
+    track.style.transition = 'none';
+    track.style.transform  = `translateX(${base + dx * 0.6}px)`;
+  });
+
+  viewport.addEventListener('mouseup', e => {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.clientX - startX;
+    const dt = Date.now() - startT;
+    if (moved && (Math.abs(dx) > 60 || (Math.abs(dx) > 30 && dt < 250))) {
+      moveWish(dx < 0 ? 1 : -1);
+    } else {
+      applyCarouselPosition(true);
+    }
+    moved = false;
+  });
+
+  viewport.addEventListener('mouseleave', () => {
+    if (dragging) { dragging = false; applyCarouselPosition(true); }
+  });
+
+  // Prevent click-through on links/buttons inside cards while dragging
+  viewport.addEventListener('click', e => {
+    if (moved) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+}
+
+// ── Submit a new wish ─────────────────────────────────────────
+async function submitWish() {
+  const nameInput = document.getElementById('wish-name');
+  const msgInput  = document.getElementById('wish-msg');
+  const submitBtn = document.querySelector('#wishes-section .btn-submit');
+
+  const name    = nameInput.value.trim();
+  const message = msgInput.value.trim();
+
+  if (!name || !message) {
     alert('Please fill in both your name and message.');
     return;
   }
 
-  wishes.unshift({ name, text: msg });
-  renderWishes();
+  submitBtn.disabled = true;
+  submitBtn.querySelector('span').textContent = 'Sending…';
 
-  document.getElementById('wish-name').value = '';
-  document.getElementById('wish-msg').value  = '';
+  if (DEV_MODE) {
+    await new Promise(r => setTimeout(r, 600));
+    wishList.unshift({ name, message, timestamp: '' });
+    wishIndex = 0;
+    renderCarousel();
+    nameInput.value = '';
+    msgInput.value  = '';
+    submitBtn.disabled = false;
+    submitBtn.querySelector('span').textContent = 'Send Wishes';
+    return;
+  }
+
+  try {
+    const res    = await fetch(APPS_SCRIPT_URL, {
+      method:      'POST',
+      redirect:    'follow',
+      credentials: 'omit',
+      body: JSON.stringify({ action: 'wish', name, message }),
+    });
+    const result = await res.json();
+
+    if (result.result === 'success') {
+      wishList.unshift({ name, message, timestamp: '' });
+      wishIndex = 0;
+      renderCarousel();
+      nameInput.value = '';
+      msgInput.value  = '';
+    } else {
+      throw new Error(result.error || 'Unknown error');
+    }
+  } catch (err) {
+    console.error('Wish failed:', err);
+    alert('Something went wrong. Please try again.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.querySelector('span').textContent = 'Send Wishes';
+  }
 }
 
 function escapeHtml(str) {
-  return str
+  return String(str)
     .replace(/&/g,  '&amp;')
     .replace(/</g,  '&lt;')
     .replace(/>/g,  '&gt;')
@@ -480,5 +797,4 @@ function copyText(text, btn) {
 ════════════════════════════════════════ */
 
 createPetals();
-renderWishes();
 initGuest(); // reads URL, fetches guest data from Sheets

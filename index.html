@@ -39,7 +39,7 @@
       <p class="cover-tag">✦ &nbsp; A Milestone Celebration &nbsp; ✦</p>
 
       <p class="cover-dear">Dear,</p>
-      <h1 class="cover-guest">Sarah</h1>   <!-- ← CHANGE: Guest name -->
+      <h1 class="cover-guest">Guest</h1>   <!-- ← CHANGE: Guest name -->
 
       <div class="divider">
         <div class="dline"></div>
@@ -52,8 +52,11 @@
       <div class="cover-milestone">75</div>
       <p class="cover-name">Alicia</p>    <!-- ← CHANGE: Birthday person's name -->
 
-      <button class="btn-open" onclick="openInvitation()">
-        <span>Open Invitation</span>
+      <!-- Status shown while checking the guest list -->
+      <p id="cover-status"></p>
+
+      <button class="btn-open" id="btn-open" onclick="openInvitation()">
+        <span id="btn-open-label">Open Invitation</span>
       </button>
     </div>
 

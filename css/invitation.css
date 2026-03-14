@@ -294,7 +294,10 @@
 
 
 /* ════════════════════════════════════════
-   6. WISHES WALL
+   6. WISHES — PEEK CAROUSEL
+   The active card takes ~78% of the width.
+   The next/prev cards peek in from the sides,
+   giving a clear visual hint that more exist.
 ════════════════════════════════════════ */
 #wishes-section {
   background: var(--pink-pale);
@@ -303,43 +306,207 @@
 #wishes-section .s-title { color: var(--dark2); }
 #wishes-section .s-label { color: var(--pink-deep); }
 
-/* Individual wish card */
-.wish-card {
-  background: #fff;
-  border: 1px solid rgba(232, 130, 154, 0.2);
-  padding: 22px 26px;
-  margin-bottom: 14px;
-  position: relative;
-  box-shadow: 0 2px 16px rgba(196, 85, 110, 0.06);
+/*
+  Viewport window — clips the peeking cards.
+  overflow:hidden hides anything outside,
+  but we add horizontal padding so the peek
+  is visible while the edges stay clipped.
+*/
+.wishes-viewport {
+  overflow: hidden;
+  margin-top: 32px;
+  /* Padding creates the visible peek space on each side */
+  padding: 12px 40px;
+  margin-left:  -40px;
+  margin-right: -40px;
+  cursor: grab;
 }
 
-/* Large decorative opening quote mark */
+.wishes-viewport:active {
+  cursor: grabbing;
+}
+
+/*
+  Sliding track — sits inside the viewport.
+  Each step moves by (cardWidth + gap) px,
+  calculated in JS and applied as translateX.
+*/
+.wishes-track {
+  display: flex;
+  gap: 16px;
+  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  /* No width constraint — track grows with cards */
+}
+
+/*
+  Individual card.
+  flex-shrink:0 prevents cards from squishing.
+  Width is set by JS as a CSS custom property
+  so it can be calculated from container size.
+*/
+.wish-card {
+  flex: 0 0 var(--card-w, 78%);
+  background: #fff;
+  border: 1px solid rgba(232, 130, 154, 0.18);
+  padding: 32px 28px 24px;
+  position: relative;
+  box-shadow: 0 4px 28px rgba(196, 85, 110, 0.09);
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  /* Cards scale down and fade slightly when not active */
+  transition: transform 0.42s ease, opacity 0.42s ease, box-shadow 0.42s ease;
+  transform: scale(0.96);
+  opacity: 0.55;
+}
+
+/* Active card — full size, full opacity */
+.wish-card.active {
+  transform: scale(1);
+  opacity: 1;
+  box-shadow: 0 8px 40px rgba(196, 85, 110, 0.16);
+}
+
+/* Decorative opening quote */
 .wish-card::before {
-  content: '\201C';
+  content: '';
   position: absolute;
   top: 6px;
   left: 14px;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 3.5rem;
+  font-size: 4rem;
   color: var(--pink);
-  opacity: 0.25;
+  opacity: 0.18;
   line-height: 1;
+  pointer-events: none;
 }
 
 .wish-text {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: 1.08rem;
   color: var(--dark);
-  padding-top: 18px;
-  margin-bottom: 10px;
+  line-height: 1.75;
+  margin-bottom: 16px;
+  flex: 1;
+  /* Clamp long wishes to 4 lines with a fade-out */
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wish-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
 }
 
 .wish-author {
-  font-size: 0.65rem;
+  font-size: 0.63rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--pink-deep);
+}
+
+.wish-date {
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: #ccc;
+}
+
+/* ── Arrow buttons ── */
+/*
+  Sit below the carousel, centred.
+  Not overlaid on top so they don't block
+  the peek effect visually.
+*/
+.wish-arrows {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.wish-arrow {
+  width: 38px;
+  height: 38px;
+  background: #fff;
+  border: 1px solid rgba(232, 130, 154, 0.35);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pink-deep);
+  font-size: 1rem;
+  transition: all 0.25s;
+  box-shadow: 0 2px 10px rgba(196, 85, 110, 0.1);
+}
+
+.wish-arrow:hover {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(196, 85, 110, 0.25);
+}
+
+.wish-arrow:disabled {
+  opacity: 0.22;
+  cursor: default;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+/* ── Dot indicators ── */
+.wish-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.wish-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(232, 130, 154, 0.22);
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.wish-dot.active {
+  background: var(--pink);
+  width: 18px;            /* active dot stretches into a pill */
+  border-radius: 3px;
+}
+
+/* ── Counter "2 / 7" ── */
+.wish-counter {
+  text-align: center;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  color: var(--pink-deep);
+  opacity: 0.55;
+  margin-top: 8px;
+}
+
+/* ── Empty / loading state ── */
+.wishes-empty {
+  text-align: center;
+  padding: 40px 20px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: #bbb;
+  font-size: 1rem;
 }
 
 

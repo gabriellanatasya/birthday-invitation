@@ -229,3 +229,55 @@
 .btn-open:hover::before {
   transform: scaleX(1);
 }
+
+
+/* ── COVER STATUS MESSAGE ── */
+/*
+   Shown below the button while checking the guest list,
+   and replaced with an error if the name is not found.
+*/
+#cover-status {
+  min-height: 28px;
+  margin-bottom: 14px;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-align: center;
+  transition: opacity 0.4s;
+}
+
+/* Checking state — subtle gold pulse */
+#cover-status.checking {
+  color: rgba(240, 217, 142, 0.7);
+  animation: status-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes status-pulse {
+  from { opacity: 0.5; }
+  to   { opacity: 1;   }
+}
+
+/* Invalid / not found — pink warning */
+#cover-status.invalid {
+  color: #f5c6d0;
+  animation: none;
+  opacity: 1;
+}
+
+/* No ?to= param in URL */
+#cover-status.no-param {
+  color: rgba(240, 217, 142, 0.6);
+  animation: none;
+  opacity: 1;
+}
+
+/* Button disabled state */
+.btn-open:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Button loading state — shimmer */
+.btn-open.loading span {
+  opacity: 0.5;
+}
