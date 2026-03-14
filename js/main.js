@@ -25,7 +25,7 @@
  * Get it from: Apps Script → Deploy → Manage deployments → copy URL
  * It looks like: https://script.google.com/macros/s/AKfycb.../exec
  */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvKiePNo_nbIKxNUsRS7m1qscsIbGcfXKwghoMW07h5Z2g4JVkqwJUhnO3Yw8NZBaJYA/exec'; // ← CHANGE THIS
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNFhGrM4ZXGaWIwWPMhsMcjrkc_yY-avkPiju2x1eE1Fep8vJ2ygpNamh5pHbs0jqd6A/exec'; // ← CHANGE THIS
 
 /**
  * Event date/time in ISO 8601 format with timezone offset.
@@ -82,9 +82,14 @@ async function initGuest() {
   try {
     showRsvpLoader(true);
 
+    // Apps Script Web Apps redirect once — 'follow' handles that automatically.
+    // We also pass credentials: 'omit' to avoid CORS preflight issues.
     const url      = `${APPS_SCRIPT_URL}?name=${encodeURIComponent(guestName)}`;
-    const response = await fetch(url);
-    const data     = await response.json();
+    const response = await fetch(url, {
+      redirect:    'follow',
+      credentials: 'omit',
+    });
+    const data = await response.json();
 
     if (data.found) {
       guestMaxPax = data.maxPax;
@@ -367,9 +372,13 @@ async function submitRSVP() {
 
   try {
     // POST to Apps Script — server also validates pax ≤ maxPax
+    // Note: Apps Script ignores Content-Type on POST and reads postData.contents directly.
+    // We must NOT set Content-Type header — it triggers a CORS preflight that Apps Script
+    // does not support. Sending as plain text body still works because we JSON.parse() it in doPost.
     const response = await fetch(APPS_SCRIPT_URL, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:      'POST',
+      redirect:    'follow',
+      credentials: 'omit',
       body: JSON.stringify({
         invitedAs: guestName,   // the ?to= name (who the invite was sent to)
         name,                   // what they typed
