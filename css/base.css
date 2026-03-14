@@ -1,0 +1,281 @@
+/* ============================================================
+   base.css
+   Global styles: CSS variables, resets, shared utilities,
+   and styles used across multiple sections.
+   ============================================================ */
+
+
+/* ── CSS VARIABLES (colour palette) ── */
+:root {
+  --gold:       #d4a843;
+  --gold-light: #f0d98e;
+  --gold-dark:  #9a7320;
+
+  --pink:       #e8829a;
+  --pink-deep:  #c4556e;
+  --pink-soft:  #f5c6d0;
+  --pink-pale:  #fdf0f3;
+  --blush:      #fae8ec;
+
+  --dark:       #2b0d14;
+  --dark2:      #3d1220;
+  --cream:      #fffaf8;
+}
+
+
+/* ── RESET & BASE ── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+  background: var(--dark);
+  color: var(--cream);
+  overflow-x: hidden;
+}
+
+
+/* ── SHARED SECTION LAYOUT ── */
+.section {
+  padding: 80px 24px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+
+/* ── SHARED TYPOGRAPHY ── */
+.s-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  font-weight: 300;
+  margin-bottom: 10px;
+}
+
+.s-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.4rem, 4vw, 2.1rem);
+  color: var(--dark);
+  letter-spacing: 0.04em;
+  margin-bottom: 20px;
+}
+
+
+/* ── PINK-GOLD DIVIDER LINE ── */
+.pk-line {
+  width: 56px;
+  height: 2px;
+  margin: 18px 0;
+  background: linear-gradient(to right, var(--pink), var(--gold));
+  border-radius: 2px;
+}
+
+
+/* ── SHARED DIVIDER (cover + sections) ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+  margin: 20px auto 24px;
+}
+
+.dline {
+  flex: 1;
+  max-width: 70px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold));
+}
+
+.dline.r {
+  background: linear-gradient(to left, transparent, var(--gold));
+}
+
+.dicon {
+  color: var(--gold);
+  font-size: 0.9rem;
+  letter-spacing: 0.3em;
+}
+
+
+/* ── SHARED FORM ELEMENTS ── */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.f-label {
+  display: block;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pink-soft);
+  margin-bottom: 8px;
+}
+
+.f-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(232, 130, 154, 0.3);
+  color: var(--cream);
+  padding: 14px 16px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.f-input:focus {
+  border-color: var(--pink);
+}
+
+.f-input::placeholder {
+  color: rgba(253, 240, 243, 0.3);
+}
+
+textarea.f-input {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Light-background variant for the wishes form */
+.wish-label {
+  color: var(--pink-deep) !important;
+}
+
+.wish-input {
+  background: #fff !important;
+  color: var(--dark) !important;
+  border-color: rgba(232, 130, 154, 0.35) !important;
+}
+
+
+/* ── SHARED SUBMIT BUTTON ── */
+.btn-submit {
+  width: 100%;
+  padding: 18px;
+  background: transparent;
+  border: 1px solid var(--pink);
+  color: var(--pink-soft);
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.4s;
+  margin-top: 8px;
+}
+
+/* Sliding fill on hover */
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--pink-deep), var(--gold-dark));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(.77, 0, .18, 1);
+  z-index: 0;
+}
+
+.btn-submit span {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-submit:hover {
+  color: #fff;
+}
+
+.btn-submit:hover::before {
+  transform: scaleX(1);
+}
+
+/* Light variant (used on pale-background sections) */
+.btn-submit.light {
+  border-color: var(--pink-deep);
+  color: var(--pink-deep);
+}
+
+.btn-submit.light::before {
+  background: linear-gradient(135deg, var(--pink), var(--gold));
+}
+
+
+/* ── SUCCESS MESSAGE (RSVP) ── */
+.success-msg {
+  display: none;
+  text-align: center;
+  padding: 28px;
+  border: 1px solid rgba(232, 130, 154, 0.35);
+  margin-top: 20px;
+}
+
+.success-msg.show {
+  display: block;
+}
+
+.success-msg p {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--pink-soft);
+}
+
+
+/* ── SCROLL REVEAL ANIMATION ── */
+/*
+   Elements with class "reveal" start invisible.
+   JS adds "visible" when they enter the viewport.
+*/
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 500px) {
+  .section {
+    padding: 60px 20px;
+  }
+}
+
+/* ── SELECT DROPDOWN ── */
+/*
+   Custom-styled <select> matching the dark RSVP section.
+   The arrow is an inline SVG encoded in the background property.
+*/
+.f-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+
+  /* Custom chevron arrow — gold colour */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23d4a843' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 42px; /* room for the arrow */
+}
+
+/* Option items (browser-limited styling, but at least readable) */
+.f-select option {
+  background: #3d1220;
+  color: #fffaf8;
+  padding: 8px;
+}

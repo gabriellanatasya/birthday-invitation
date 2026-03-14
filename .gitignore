@@ -1,0 +1,34 @@
+# ── OS ────────────────────────────────────────
+.DS_Store           # macOS folder metadata
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db           # Windows thumbnail cache
+ehthumbs.db
+desktop.ini
+
+# ── Environment Variables ─────────────────────
+# Contains secrets like Cloudinary API key/secret
+# NEVER commit this
+.env
+.env.local
+.env.*.local
+
+# ── Logs ──────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+
+# ── Node (if you add npm/build tools later) ───
+node_modules/
+dist/
+build/
+
+# ── VSCode ────────────────────────────────────
+.vscode/
+
+# ── Cloudinary ────────────────────────────────
+# If you ever use a Cloudinary config file locally
+cloudinary.config
+.cloudinaryrc

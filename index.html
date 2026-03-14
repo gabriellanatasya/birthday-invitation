@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>75th Birthday Invitation</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/cover.css"/>
+  <link rel="stylesheet" href="css/invitation.css"/>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       COVER PAGE
+       Shown first. Guest clicks "Open Invitation"
+       to reveal the full invitation below.
+  ════════════════════════════════════════════ -->
+  <div id="cover">
+
+    <!-- Decorative: large "75" watermark -->
+    <div class="cover-75">75</div>
+
+    <!-- Decorative: animated pulsing rings -->
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+
+    <!-- Falling petals injected by JS -->
+    <div id="pc"></div>
+
+    <!-- Cover text content -->
+    <div class="cover-content">
+      <p class="cover-tag">✦ &nbsp; A Milestone Celebration &nbsp; ✦</p>
+
+      <p class="cover-dear">Dear,</p>
+      <h1 class="cover-guest">Sarah</h1>   <!-- ← CHANGE: Guest name -->
+
+      <div class="divider">
+        <div class="dline"></div>
+        <span class="dicon">✦ ✦ ✦</span>
+        <div class="dline r"></div>
+      </div>
+
+      <p class="cover-invited">You are warmly invited to celebrate</p>
+      <p class="cover-subtitle">The 75th Birthday of</p>
+      <div class="cover-milestone">75</div>
+      <p class="cover-name">Alicia</p>    <!-- ← CHANGE: Birthday person's name -->
+
+      <button class="btn-open" onclick="openInvitation()">
+        <span>Open Invitation</span>
+      </button>
+    </div>
+
+  </div><!-- /#cover -->
+
+
+  <!-- ═══════════════════════════════════════════
+       INVITATION
+       Hidden on load. Revealed after button click.
+  ════════════════════════════════════════════ -->
+  <div id="invitation">
+
+    <!-- ── 1. HERO BANNER ── -->
+    <div id="inv-hero">
+      <div class="hero-75">75</div>
+      <div class="hero-inner">
+        <p class="hero-tag">✦ &nbsp; Milestone Birthday &nbsp; ✦</p>
+        <div class="hero-milestone">75</div>
+        <p class="hero-years">Years of Grace &nbsp;·&nbsp; Love &nbsp;·&nbsp; Joy</p>
+        <div class="hero-name">Alicia</div>   <!-- ← CHANGE: Birthday person's name -->
+        <p class="hero-sub">Birthday Celebration</p>
+      </div>
+    </div>
+
+    <!-- ── 2. COUNTDOWN ── -->
+    <div id="countdown-section">
+      <div class="section" style="text-align:center">
+        <p class="s-label reveal">Counting Down To</p>
+        <h2 class="s-title reveal">The Big Day</h2>
+        <div class="pk-line reveal" style="margin:18px auto"></div>
+        <p class="reveal event-date-label">
+          Saturday, 18 April 2026 &nbsp;·&nbsp; 18.00 WIB
+                                <!-- ← CHANGE: Date and time -->
+        </p>
+        <div class="cd-grid">
+          <div class="cd-box"><span class="cd-num" id="cd-days">--</span><span class="cd-lbl">Days</span></div>
+          <div class="cd-box"><span class="cd-num" id="cd-hours">--</span><span class="cd-lbl">Hours</span></div>
+          <div class="cd-box"><span class="cd-num" id="cd-mins">--</span><span class="cd-lbl">Minutes</span></div>
+          <div class="cd-box"><span class="cd-num" id="cd-secs">--</span><span class="cd-lbl">Seconds</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 3. EVENT DETAILS ── -->
+    <div id="details-section">
+      <div class="section">
+        <p class="s-label reveal">Event Details</p>
+        <h2 class="s-title reveal">Where &amp; When</h2>
+        <div class="pk-line reveal"></div>
+
+        <div class="detail-row reveal">
+          <div class="detail-icon">📅</div>
+          <div>
+            <p class="di-label">Date &amp; Time</p>
+            <p class="di-value">Saturday, 18 April 2026 · 18.00 WIB</p>
+                                              <!-- ← CHANGE -->
+          </div>
+        </div>
+
+        <div class="detail-row reveal">
+          <div class="detail-icon">📍</div>
+          <div>
+            <p class="di-label">Venue</p>
+            <p class="di-value">The Grand Ballroom, Hotel Majapahit</p>
+                                              <!-- ← CHANGE -->
+          </div>
+        </div>
+
+        <div class="detail-row reveal">
+          <div class="detail-icon">🏠</div>
+          <div>
+            <p class="di-label">Address</p>
+            <p class="di-value">Jl. Tunjungan No. 65, Surabaya, Jawa Timur 60275</p>
+                                              <!-- ← CHANGE -->
+          </div>
+        </div>
+
+        <div class="detail-row reveal" style="border:none">
+          <div class="detail-icon">👗</div>
+          <div>
+            <p class="di-label">Dress Code</p>
+            <p class="di-value">Formal Attire — Pink &amp; Gold</p>
+                                              <!-- ← CHANGE -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. GOOGLE MAP ── -->
+    <div id="map-section">
+      <div class="map-bar">
+        <p class="s-label reveal">Location</p>
+        <h2 class="s-title reveal" style="color:var(--dark2)">Find Us Here</h2>
+      </div>
+      <!--
+        ← CHANGE: Replace the src URL with your venue's Google Maps embed link.
+        Go to Google Maps → your venue → Share → Embed a map → copy the src URL.
+      -->
+      <iframe
+        class="map-frame"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3957.619!2d112.7376!3d-7.2575!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7fb1cf1a87fb3%3A0x18a05b3dbbec8caf!2sHotel%20Majapahit%20Surabaya!5e0!3m2!1sen!2sid!4v1"
+        allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Event Location">
+      </iframe>
+    </div>
+
+    <!-- ── 5. RSVP ── -->
+    <div id="rsvp-section">
+      <div class="section">
+        <p class="s-label reveal">Reservation</p>
+        <h2 class="s-title reveal">Will You Join Us?</h2>
+        <div class="pk-line reveal" style="opacity:0.5"></div>
+        <p class="reveal rsvp-note">
+          Please confirm your attendance before
+          <strong style="color:var(--pink-soft)">10 April 2026</strong>
+          so we can prepare a perfect celebration for Alicia's 75th birthday.
+                                    <!-- ← CHANGE: RSVP deadline & name -->
+        </p>
+
+        <!-- Attend toggle -->
+        <div class="toggle-row reveal">
+          <button class="tog-btn active" id="btn-yes" onclick="setRSVP('yes')">✓ &nbsp; Will Attend</button>
+          <button class="tog-btn"        id="btn-no"  onclick="setRSVP('no')">✗ &nbsp; Cannot Attend</button>
+        </div>
+
+        <!-- Form fields -->
+        <div class="form-group reveal">
+          <label class="f-label">Full Name</label>
+          <input class="f-input" type="text"   id="rsvp-name"   placeholder="Your name"/>
+        </div>
+        <div class="form-group reveal">
+          <label class="f-label">Number of Guests</label>
+          <!--
+            Dropdown is built dynamically by JS (buildPaxDropdown)
+            once max pax is known from Google Sheets.
+            A fallback <select> with 1 option is shown while loading.
+          -->
+          <select class="f-input f-select" id="rsvp-guests">
+            <option value="1">1 guest</option>
+          </select>
+        </div>
+        <div class="form-group reveal">
+          <label class="f-label">Phone / WhatsApp</label>
+          <input class="f-input" type="text"   id="rsvp-phone"  placeholder="+62 xxx xxxx xxxx"/>
+        </div>
+
+        <button class="btn-submit reveal" onclick="submitRSVP()">
+          <span>Confirm Attendance</span>
+        </button>
+
+        <div class="success-msg" id="rsvp-success">
+          <p>Thank you! Your reservation has been received. ✦</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 6. WISHES WALL ── -->
+    <div id="wishes-section">
+      <div class="section">
+        <p class="s-label reveal">Heartfelt Messages</p>
+        <h2 class="s-title reveal">Leave Your Wishes</h2>
+        <div class="pk-line reveal"></div>
+        <p class="reveal" style="color:#a05070;font-size:0.9rem;margin-bottom:28px;line-height:1.8">
+          Share a message of love &amp; blessings for Alicia's 75th birthday.
+                                                      <!-- ← CHANGE: name -->
+        </p>
+
+        <div class="form-group reveal">
+          <label class="f-label wish-label">Your Name</label>
+          <input class="f-input wish-input" type="text" id="wish-name" placeholder="Your name"/>
+        </div>
+        <div class="form-group reveal">
+          <label class="f-label wish-label">Your Message</label>
+          <textarea class="f-input wish-input" id="wish-msg" placeholder="Write your wishes here…"></textarea>
+        </div>
+
+        <button class="btn-submit light reveal" onclick="submitWish()">
+          <span>Send Wishes</span>
+        </button>
+
+        <!-- Wish cards rendered here by JS -->
+        <div id="wishes-wall" style="margin-top:36px"></div>
+      </div>
+    </div>
+
+    <!-- ── 7. GIFT / BANK TRANSFER ── -->
+    <div id="gift-section">
+      <div class="section">
+        <p class="s-label reveal">Gift</p>
+        <h2 class="s-title reveal">Send a Gift</h2>
+        <div class="pk-line reveal"></div>
+        <p class="reveal" style="color:#888;font-size:0.9rem;margin-bottom:32px;line-height:1.9">
+          Your presence is the most precious gift of all. If you wish to send a token of love
+          to celebrate Alicia's 75 wonderful years, you may transfer to the accounts below.
+                                                              <!-- ← CHANGE: name -->
+        </p>
+
+        <!-- Bank account 1 -->
+        <!-- ← CHANGE: bank name, account number, account holder -->
+        <div class="bank-card reveal">
+          <p class="bank-name">BCA — Bank Central Asia</p>
+          <p class="bank-num">1234 5678 90</p>
+          <p class="bank-holder">a/n Alicia Putri Santoso</p>
+          <button class="copy-btn" onclick="copyText('1234567890', this)">Copy Account Number</button>
+        </div>
+
+        <!-- Bank account 2 -->
+        <div class="bank-card reveal">
+          <p class="bank-name">Mandiri</p>
+          <p class="bank-num">1400 1234 5678</p>
+          <p class="bank-holder">a/n Alicia Putri Santoso</p>
+          <button class="copy-btn" onclick="copyText('14001234 5678', this)">Copy Account Number</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 8. THANK YOU ── -->
+    <div id="ty-section">
+      <div class="ty-75">75</div>
+      <div class="ty-inner">
+        <div class="ty-gem">✦ &nbsp; ✦ &nbsp; ✦</div>
+        <h2 class="ty-title">Thank You</h2>
+        <p class="ty-sub">
+          We are deeply grateful for your love and presence.<br>
+          Celebrating 75 years of Alicia's beautiful life<br>
+          is a blessing we wish to share with you.<br><br>
+          We look forward to seeing you there.
+        </p>
+        <p class="ty-sig">With Love &nbsp;·&nbsp; Alicia &amp; Family</p>
+                                              <!-- ← CHANGE: name -->
+        <br><br>
+        <div class="ty-gem" style="font-size:1rem">✦</div>
+      </div>
+    </div>
+
+  </div><!-- /#invitation -->
+
+
+  <!-- JavaScript -->
+  <script src="js/main.js"></script>
+
+</body>
+</html>

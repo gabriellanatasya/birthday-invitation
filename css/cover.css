@@ -1,0 +1,231 @@
+/* ============================================================
+   cover.css
+   Styles for the cover page (#cover) shown before the
+   guest opens the invitation.
+   ============================================================ */
+
+
+/* ── COVER WRAPPER ── */
+#cover {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 20% 10%, #4a1628 0%, #2b0d14 55%, #1a0809 100%);
+}
+
+/* Animated colour glow overlay */
+#cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 80% 80%, rgba(212, 168, 67, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 15% 70%, rgba(232, 130, 154, 0.22) 0%, transparent 45%);
+  animation: glow-shift 8s ease-in-out infinite alternate;
+}
+
+@keyframes glow-shift {
+  from { opacity: 0.7; }
+  to   { opacity: 1;   }
+}
+
+
+/* ── FALLING PETALS (injected by JS) ── */
+.petal {
+  position: absolute;
+  border-radius: 60% 40% 70% 30% / 50% 60% 40% 70%;
+  opacity: 0;
+  animation: fall linear infinite;
+  pointer-events: none;
+}
+
+@keyframes fall {
+  0%   { transform: translateY(-30px)   rotate(0deg)   scale(1);   opacity: 0;    }
+  8%   {                                                             opacity: 0.75; }
+  85%  {                                                             opacity: 0.45; }
+  100% { transform: translateY(110vh)   rotate(540deg) scale(0.6); opacity: 0;    }
+}
+
+
+/* ── PULSING RINGS ── */
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: ring-pulse 5s ease-in-out infinite;
+}
+
+.ring:nth-child(1) { width: 300px; height: 300px; border: 1px solid rgba(212, 168,  67, 0.22); animation-delay: 0s;   }
+.ring:nth-child(2) { width: 430px; height: 430px; border: 1px solid rgba(232, 130, 154, 0.14); animation-delay: 1.2s; }
+.ring:nth-child(3) { width: 570px; height: 570px; border: 1px solid rgba(212, 168,  67, 0.09); animation-delay: 2.4s; }
+.ring:nth-child(4) { width: 700px; height: 700px; border: 1px solid rgba(232, 130, 154, 0.06); animation-delay: 3.6s; }
+
+@keyframes ring-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 1;   }
+  50%       { transform: translate(-50%, -50%) scale(1.06); opacity: 0.6; }
+}
+
+
+/* ── "75" WATERMARK ── */
+.cover-75 {
+  position: absolute;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: clamp(200px, 40vw, 340px);
+  color: rgba(232, 130, 154, 0.06);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  letter-spacing: -0.04em;
+}
+
+
+/* ── COVER CONTENT WRAPPER ── */
+.cover-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 40px 32px;
+  animation: fadeUp 1.2s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+
+/* ── COVER TEXT ELEMENTS ── */
+/* Each line has a staggered animation delay */
+
+.cover-tag {
+  font-size: 0.62rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  font-weight: 300;
+  margin-bottom: 24px;
+  animation: fadeUp 1.2s 0.15s ease both;
+}
+
+.cover-dear {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  color: var(--pink-soft);
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+  animation: fadeUp 1.2s 0.25s ease both;
+}
+
+/* Guest's name — large serif */
+.cover-guest {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.4rem, 8vw, 4.4rem);
+  color: var(--cream);
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  margin-bottom: 32px;
+  animation: fadeUp 1.2s 0.35s ease both;
+}
+
+.cover-invited {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  color: var(--pink-soft);
+  opacity: 0.9;
+  margin-bottom: 6px;
+  animation: fadeUp 1.2s 0.52s ease both;
+}
+
+.cover-subtitle {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: clamp(0.65rem, 2vw, 0.85rem);
+  color: var(--gold);
+  margin-bottom: 4px;
+  animation: fadeUp 1.2s 0.58s ease both;
+}
+
+/* "75" in gradient text */
+.cover-milestone {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: clamp(2.8rem, 9vw, 5.6rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 40%, var(--pink) 70%, var(--gold-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  animation: fadeUp 1.2s 0.62s ease both;
+}
+
+/* Birthday person's name */
+.cover-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.8rem, 5.5vw, 3.2rem);
+  color: var(--cream);
+  margin-bottom: 44px;
+  animation: fadeUp 1.2s 0.68s ease both;
+}
+
+
+/* ── OPEN INVITATION BUTTON ── */
+.btn-open {
+  display: inline-block;
+  padding: 16px 52px;
+  background: transparent;
+  border: 1px solid var(--pink);
+  color: var(--pink-soft);
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.4s;
+  animation: fadeUp 1.2s 0.85s ease both;
+}
+
+/* Sliding fill on hover */
+.btn-open::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--pink-deep), var(--gold-dark));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(.77, 0, .18, 1);
+  z-index: 0;
+}
+
+.btn-open span {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-open:hover {
+  color: #fff;
+}
+
+.btn-open:hover::before {
+  transform: scaleX(1);
+}
