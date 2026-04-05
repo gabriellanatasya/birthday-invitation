@@ -1091,6 +1091,53 @@ function initDecoReveal() {
 
 
 /* ════════════════════════════════════════
+   8. COPY TO CLIPBOARD (bank account)
+   Uses modern Clipboard API with a textarea
+   fallback for mobile browsers that block it.
+════════════════════════════════════════ */
+
+function copyText(text, btn) {
+  const originalLabel = btn.textContent;
+
+  function onSuccess() {
+    btn.textContent = 'Copied! ✓';
+    setTimeout(() => btn.textContent = originalLabel, 2000);
+  }
+
+  function onFail() {
+    // Fallback: create a temporary invisible textarea, select its
+    // content, and use the older execCommand which works on mobile
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    // Keep it off-screen so it doesn't cause a scroll jump
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    // Some iOS versions need setSelectionRange too
+    ta.setSelectionRange(0, ta.value.length);
+    try {
+      document.execCommand('copy');
+      onSuccess();
+    } catch {
+      // Last resort — native prompt so they can copy manually
+      window.prompt('Copy this number:', text);
+    } finally {
+      document.body.removeChild(ta);
+    }
+  }
+
+  // Try modern API first (works on HTTPS desktop + most modern mobile)
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(onSuccess).catch(onFail);
+  } else {
+    // No clipboard API (HTTP or older browser) — go straight to fallback
+    onFail();
+  }
+}
+
+
+/* ════════════════════════════════════════
    INITIALISE ON PAGE LOAD
 ════════════════════════════════════════ */
 
