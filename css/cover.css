@@ -1,7 +1,7 @@
 /* ============================================================
-   cover.css
-   Styles for the cover page (#cover) shown before the
-   guest opens the invitation.
+   cover.css  —  Cover page styles
+   THEME: Soft floral — cream bg, rose typography, SVG florals,
+          butterflies, gold speckles, ribbon swirls.
    ============================================================ */
 
 
@@ -14,27 +14,94 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(ellipse at 20% 10%, #4a1628 0%, #2b0d14 55%, #1a0809 100%);
+  /* Warm cream — matches the reference card's background */
+  background: linear-gradient(160deg, #fdf7f0 0%, #faeaed 50%, #fdf3e8 100%);
 }
 
-/* Animated colour glow overlay */
+
+/* ── HORIZONTAL LINEN LINES (reference image texture) ── */
 #cover::before {
   content: '';
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(181, 41, 78, 0.03) 0px,
+    rgba(181, 41, 78, 0.03) 1px,
+    transparent 1px,
+    transparent 18px
+  );
+  pointer-events: none;
+}
+
+
+/* ── GOLD SPECKLE OVERLAY ── */
+/* Tiny rotated squares that mimic the gold foil dots in the reference */
+#cover::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(201,164,74,0.55) 1px, transparent 1px),
+    radial-gradient(circle, rgba(201,164,74,0.35) 1px, transparent 1px),
+    radial-gradient(circle, rgba(201,164,74,0.45) 1.5px, transparent 1.5px);
+  background-size: 40px 40px, 70px 70px, 55px 55px;
+  background-position: 5px 8px, 22px 30px, 45px 12px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+
+/* ── SVG FLORALS & BUTTERFLIES (injected by JS) ── */
+/* Positioned absolutely at corners, drawn in rose line art */
+.floral-corner {
   position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 80% 80%, rgba(212, 168, 67, 0.18) 0%, transparent 55%),
-    radial-gradient(ellipse at 15% 70%, rgba(232, 130, 154, 0.22) 0%, transparent 45%);
-  animation: glow-shift 8s ease-in-out infinite alternate;
+  pointer-events: none;
+  opacity: 0.75;
+}
+.floral-corner.tl { top: -10px;  left: -10px;  }
+.floral-corner.br { bottom: -10px; right: -10px; transform: rotate(180deg); }
+.butterfly {
+  position: absolute;
+  pointer-events: none;
+  animation: flutter 3s ease-in-out infinite alternate;
+}
+.butterfly.mid-right { right: 12%; top: 42%; }
+.butterfly.lower-left { left: 8%;  bottom: 28%; }
+
+@keyframes flutter {
+  0%   { transform: rotate(-4deg) translateY(0px);   }
+  50%  { transform: rotate(4deg)  translateY(-6px);  }
+  100% { transform: rotate(-2deg) translateY(2px);   }
 }
 
-@keyframes glow-shift {
-  from { opacity: 0.7; }
-  to   { opacity: 1;   }
+
+/* ── RIBBON SWIRLS ── */
+/* Pink flowing ribbons matching the reference — pure CSS shapes */
+.ribbon {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0.18;
+  border: 28px solid var(--rose-light);
+  animation: ribbon-drift 10s ease-in-out infinite alternate;
+}
+.ribbon.r1 {
+  width: 380px; height: 280px;
+  top: -60px; right: -100px;
+  transform: rotate(-30deg);
+}
+.ribbon.r2 {
+  width: 300px; height: 220px;
+  bottom: -40px; left: -80px;
+  transform: rotate(25deg);
+  animation-delay: 3s;
+}
+@keyframes ribbon-drift {
+  from { transform: rotate(-30deg) scale(1);   }
+  to   { transform: rotate(-26deg) scale(1.04); }
 }
 
 
-/* ── FALLING PETALS (injected by JS) ── */
+/* ── FALLING PETALS ── */
 .petal {
   position: absolute;
   border-radius: 60% 40% 70% 30% / 50% 60% 40% 70%;
@@ -44,14 +111,41 @@
 }
 
 @keyframes fall {
-  0%   { transform: translateY(-30px)   rotate(0deg)   scale(1);   opacity: 0;    }
-  8%   {                                                             opacity: 0.75; }
-  85%  {                                                             opacity: 0.45; }
-  100% { transform: translateY(110vh)   rotate(540deg) scale(0.6); opacity: 0;    }
+  0%   { transform: translateY(-20px) rotate(0deg)   scale(1);   opacity: 0;   }
+  8%   {                                                           opacity: 0.6; }
+  85%  {                                                           opacity: 0.3; }
+  100% { transform: translateY(110vh) rotate(480deg) scale(0.7); opacity: 0;   }
 }
 
 
-/* ── PULSING RINGS ── */
+/* ── COVER CONTENT ── */
+.cover-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 48px 36px;
+  animation: fadeUp 1.1s ease both;
+  max-width: 520px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+
+/* ── COVER TEXT ── */
+.cover-milestoneceleb {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 300;
+  margin-bottom: 24px;
+  animation: fadeUp 1.2s 0.15s ease both;
+}
+
 .ring {
   position: absolute;
   border-radius: 50%;
@@ -72,8 +166,6 @@
   50%       { transform: translate(-50%, -50%) scale(1.06); opacity: 0.6; }
 }
 
-
-/* ── "75" WATERMARK ── */
 .cover-75 {
   position: absolute;
   font-family: 'Cinzel', serif;
@@ -89,195 +181,164 @@
   letter-spacing: -0.04em;
 }
 
-
-/* ── COVER CONTENT WRAPPER ── */
-.cover-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  padding: 40px 32px;
-  animation: fadeUp 1.2s ease both;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(28px); }
-  to   { opacity: 1; transform: translateY(0);    }
-}
-
-
-/* ── COVER TEXT ELEMENTS ── */
-/* Each line has a staggered animation delay */
-
+/* "YOU ARE INVITED TO" — italic serif, spaced, like the reference */
 .cover-tag {
-  font-size: 0.62rem;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  color: var(--gold-light);
-  font-weight: 300;
-  margin-bottom: 24px;
-  animation: fadeUp 1.2s 0.15s ease both;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(0.85rem, 2.2vw, 1.1rem);
+  color: var(--rose);
+  letter-spacing: 0.12em;
+  margin-bottom: 20px;
+  animation: fadeUp 1.1s 0.1s ease both;
 }
 
 .cover-dear {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-weight: 300;
-  font-size: clamp(1.1rem, 3vw, 1.6rem);
-  color: var(--pink-soft);
-  letter-spacing: 0.04em;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: var(--rose-mid);
   margin-bottom: 2px;
-  animation: fadeUp 1.2s 0.25s ease both;
+  animation: fadeUp 1.1s 0.2s ease both;
 }
 
-/* Guest's name — large serif */
+/* Guest name */
 .cover-guest {
   font-family: 'Cinzel', serif;
-  font-size: clamp(2.4rem, 8vw, 4.4rem);
-  color: var(--cream);
-  letter-spacing: 0.06em;
+  font-size: clamp(2rem, 7vw, 3.6rem);
+  color: var(--rose);
+  letter-spacing: 0.08em;
   line-height: 1.1;
-  margin-bottom: 32px;
-  animation: fadeUp 1.2s 0.35s ease both;
+  margin-bottom: 28px;
+  animation: fadeUp 1.1s 0.3s ease both;
 }
 
 .cover-invited {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: clamp(1rem, 2.5vw, 1.35rem);
-  color: var(--pink-soft);
-  opacity: 0.9;
-  margin-bottom: 6px;
-  animation: fadeUp 1.2s 0.52s ease both;
-}
-
-.cover-subtitle {
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-size: clamp(0.65rem, 2vw, 0.85rem);
-  color: var(--gold);
+  font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+  color: var(--rose-mid);
   margin-bottom: 4px;
-  animation: fadeUp 1.2s 0.58s ease both;
+  animation: fadeUp 1.1s 0.4s ease both;
 }
 
-/* "75" in gradient text */
-.cover-milestone {
-  font-family: 'Cinzel', serif;
-  font-weight: 600;
-  font-size: clamp(2.8rem, 9vw, 5.6rem);
-  line-height: 1;
-  letter-spacing: 0.04em;
-  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 40%, var(--pink) 70%, var(--gold-light) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 8px;
-  animation: fadeUp 1.2s 0.62s ease both;
+/* "Alicia  75th" lockup — matches the reference layout */
+.cover-name-milestone {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin: 4px 0 2px;
+  animation: fadeUp 1.1s 0.48s ease both;
+  flex-wrap: wrap;
 }
 
-/* Birthday person's name */
+/* "Alicia" — large mixed serif */
 .cover-name {
   font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.4rem, 8vw, 4.2rem);
+  color: var(--rose);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* "75" — giant bold number */
+.cover-milestone {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  color: var(--rose);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* "th" superscript */
+.cover-milestone-sup {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+  color: var(--rose);
   font-style: italic;
   font-weight: 300;
-  font-size: clamp(1.8rem, 5.5vw, 3.2rem);
-  color: var(--cream);
-  margin-bottom: 44px;
-  animation: fadeUp 1.2s 0.68s ease both;
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+/* "Birthday Party" — large script-style italic */
+.cover-birthday-party {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(2rem, 7vw, 3.8rem);
+  color: var(--rose);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 4px 0 32px;
+  animation: fadeUp 1.1s 0.56s ease both;
 }
 
 
 /* ── OPEN INVITATION BUTTON ── */
 .btn-open {
   display: inline-block;
-  padding: 16px 52px;
+  padding: 14px 48px;
   background: transparent;
-  border: 1px solid var(--pink);
-  color: var(--pink-soft);
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
+  border: 1px solid var(--rose);
+  color: var(--rose);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-style: italic;
+  letter-spacing: 0.14em;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   transition: color 0.4s;
-  animation: fadeUp 1.2s 0.85s ease both;
+  animation: fadeUp 1.1s 0.72s ease both;
+  border-radius: 2px;
 }
 
-/* Sliding fill on hover */
 .btn-open::before {
   content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--pink-deep), var(--gold-dark));
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--rose), var(--rose-mid));
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.45s cubic-bezier(.77, 0, .18, 1);
   z-index: 0;
 }
 
-.btn-open span {
-  position: relative;
-  z-index: 1;
-}
+.btn-open span { position: relative; z-index: 1; }
+.btn-open:hover { color: #fff; }
+.btn-open:hover::before { transform: scaleX(1); }
 
-.btn-open:hover {
-  color: #fff;
-}
-
-.btn-open:hover::before {
-  transform: scaleX(1);
-}
-
-
-/* ── COVER STATUS MESSAGE ── */
-/*
-   Shown below the button while checking the guest list,
-   and replaced with an error if the name is not found.
-*/
-#cover-status {
-  min-height: 28px;
-  margin-bottom: 14px;
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  text-align: center;
-  transition: opacity 0.4s;
-}
-
-/* Checking state — subtle gold pulse */
-#cover-status.checking {
-  color: rgba(240, 217, 142, 0.7);
-  animation: status-pulse 1.2s ease-in-out infinite alternate;
-}
-
-@keyframes status-pulse {
-  from { opacity: 0.5; }
-  to   { opacity: 1;   }
-}
-
-/* Invalid / not found — pink warning */
-#cover-status.invalid {
-  color: #f5c6d0;
-  animation: none;
-  opacity: 1;
-}
-
-/* No ?to= param in URL */
-#cover-status.no-param {
-  color: rgba(240, 217, 142, 0.6);
-  animation: none;
-  opacity: 1;
-}
-
-/* Button disabled state */
 .btn-open:disabled {
-  opacity: 0.35;
+  opacity: 0.3;
   cursor: not-allowed;
   pointer-events: none;
 }
 
-/* Button loading state — shimmer */
-.btn-open.loading span {
-  opacity: 0.5;
+.btn-open.loading span { opacity: 0.5; }
+
+
+/* ── COVER STATUS MESSAGE ── */
+#cover-status {
+  min-height: 26px;
+  margin-bottom: 12px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+  transition: opacity 0.4s;
 }
+
+#cover-status.checking {
+  color: var(--gold-dark);
+  animation: status-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes status-pulse {
+  from { opacity: 0.45; }
+  to   { opacity: 1;    }
+}
+
+#cover-status.invalid  { color: var(--rose);      animation: none; opacity: 1; }
+#cover-status.no-param { color: var(--gold-dark);  animation: none; opacity: 0.75; }

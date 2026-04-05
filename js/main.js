@@ -21,25 +21,42 @@
 ════════════════════════════════════════ */
 
 /**
- * Paste your Google Apps Script Web App URL here.
- * Get it from: Apps Script → Deploy → Manage deployments → copy URL
- * It looks like: https://script.google.com/macros/s/AKfycb.../exec
+ * Supabase project credentials.
+ * Get both values from: Supabase dashboard → Settings → API
+ *
+ * SUPABASE_URL      → "Project URL"   e.g. https://xyzxyz.supabase.co
+ * SUPABASE_ANON_KEY → "anon public"   e.g. eyJhbGciOi...
+ *
+ * The anon key is SAFE to commit — it is read-only by default and
+ * protected by Row Level Security (RLS) policies on each table.
  */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzht7VjQM87pFOW9rrV33uPvq9mP8yhJp-yhOj2xHXSV_bUvMzn7EzO58Y8Q8QgzJ4d_A/exec'; // ← CHANGE THIS
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL_HERE';       // ← CHANGE THIS
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';  // ← CHANGE THIS
 
 /**
  * Event date/time in ISO 8601 format with timezone offset.
  * +07:00 = WIB (Western Indonesia Time)
  */
-const EVENT_DATE_ISO = '2026-04-18T18:00:00+07:00'; // ← CHANGE if needed
+const EVENT_DATE_ISO = '2026-04-18T17:30:00+07:00'; // ← CHANGE if needed
 
 /**
  * DEV MODE — set true while testing on localhost (127.0.0.1 / Live Server).
- * Skips the Apps Script network call and uses mock data instead.
+ * Skips all Supabase network calls and uses mock data instead.
  * ← Set to FALSE before deploying to production!
  */
-const DEV_MODE    = false;  // ← CHANGE to false before going live
-const DEV_MAX_PAX = 4;     // ← mock max pax used during local testing
+const DEV_MODE    = false; // ← CHANGE to false before going live
+const DEV_MAX_PAX = 4;    // ← mock max pax used during local testing
+
+/**
+ * Shared headers sent with every Supabase REST request.
+ * Built once here and reused across all fetch calls.
+ */
+const SUPA_HEADERS = {
+  'apikey':        SUPABASE_ANON_KEY,
+  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+  'Content-Type':  'application/json',
+  'Prefer':        'return=representation', // makes INSERT return the created row
+};
 
 
 /* ════════════════════════════════════════
@@ -48,13 +65,13 @@ const DEV_MAX_PAX = 4;     // ← mock max pax used during local testing
 ════════════════════════════════════════ */
 
 let guestName  = 'Guest'; // name from URL ?to=...
-let guestMaxPax = 1;       // max pax returned from Google Sheets
+let guestMaxPax = 1;       // max pax returned from Supabase
 
 
 /* ════════════════════════════════════════
    1. GUEST LOOKUP
-   Reads ?to=Name from the URL, then calls
-   the Apps Script to get their max pax.
+   Reads ?to=Name from the URL, queries the
+   Supabase "guests" table, and returns max_pax.
    Updates the cover name and RSVP form.
 ════════════════════════════════════════ */
 
@@ -85,27 +102,35 @@ async function initGuest() {
     return;
   }
 
-  // --- 1c. Validate guest against Google Sheets ---
+  // --- 1c. Validate guest against Supabase ---
   lockButton(btn, true);
   setCoverStatus('checking', '✦ Checking your invitation…');
 
   try {
-    const url      = `${APPS_SCRIPT_URL}?name=${encodeURIComponent(guestName)}`;
-    const response = await fetch(url, { redirect: 'follow', credentials: 'omit' });
-    const data     = await response.json();
+    /*
+     * Query the "guests" table for an exact name match (case-insensitive).
+     * ilike = case-insensitive LIKE in Supabase PostgREST syntax.
+     * select=name,max_pax limits the columns returned.
+     */
+    const url = `${SUPABASE_URL}/rest/v1/guests`
+      + `?name=ilike.${encodeURIComponent(guestName)}`
+      + `&select=name,max_pax`
+      + `&limit=1`;
 
-    if (data.found) {
-      // ✅ Valid guest — unlock the button
-      guestMaxPax = data.maxPax;
-      if (data.name) {
-        guestName = data.name;
-        setGuestNameInDOM(guestName);
-      }
-      setCoverStatus('', ''); // clear the checking message
+    const response = await fetch(url, { headers: SUPA_HEADERS });
+    const rows     = await response.json(); // returns an array
+
+    if (rows.length > 0) {
+      // ✅ Valid guest — use exact casing from the DB
+      const row   = rows[0];
+      guestMaxPax = row.max_pax || 1;
+      guestName   = row.name;
+      setGuestNameInDOM(guestName);
+      setCoverStatus('', '');
       lockButton(btn, false);
 
     } else {
-      // ❌ Name not in sheet — block the button, show warning
+      // ❌ Name not found
       setCoverStatus(
         'invalid',
         '✦ We could not find your invitation. Please check your link or contact us.'
@@ -114,8 +139,8 @@ async function initGuest() {
     }
 
   } catch (err) {
-    // Network error — fail open so guests aren't blocked by a connectivity issue
-    console.error('Could not reach Apps Script:', err);
+    // Network error — fail open so guests aren't blocked by connectivity issues
+    console.error('Supabase guest lookup failed:', err);
     setCoverStatus('', '');
     lockButton(btn, false);
     guestMaxPax = 1;
@@ -201,7 +226,7 @@ function applyMaxPaxToForm(maxPax) {
     notice.id = 'pax-notice';
     notice.style.cssText = [
       'font-size: 0.78rem',
-      'color: var(--gold-light)',
+      'color: var(--gold-dark)',
       'margin-top: -10px',
       'margin-bottom: 18px',
       'letter-spacing: 0.05em',
@@ -247,12 +272,12 @@ function showRsvpLoader(visible) {
 ════════════════════════════════════════ */
 
 const PETAL_COLORS = [
-  'rgba(232, 130, 154, 0.75)', // pink
-  'rgba(245, 198, 208, 0.70)', // soft pink
-  'rgba(212, 168,  67, 0.65)', // gold
-  'rgba(240, 217, 142, 0.60)', // gold light
-  'rgba(196,  85, 110, 0.60)', // deep pink
-  'rgba(253, 240, 243, 0.70)', // pale blush
+  'rgba(181,  41,  78, 0.30)', // deep rose
+  'rgba(232, 130, 154, 0.45)', // mid rose
+  'rgba(245, 198, 208, 0.60)', // blush pink
+  'rgba(201, 164,  74, 0.40)', // gold
+  'rgba(232, 130, 154, 0.35)', // soft rose
+  'rgba(253, 234, 237, 0.70)', // pale blush
 ];
 
 function createPetals() {
@@ -304,8 +329,10 @@ function openInvitation() {
 
     startCountdown();
     initReveal();
-    applyMaxPaxToForm(guestMaxPax); // build the pax dropdown now that RSVP section is visible
-    loadWishes();                   // fetch wishes from Sheets and build carousel
+    applyMaxPaxToForm(guestMaxPax);      // build the pax dropdown now that RSVP section is visible
+    loadWishes();                        // fetch wishes from Supabase and build carousel
+    createInvitationDecorations();       // inject watercolour splashes, florals, butterflies
+    initDecoReveal();                    // fade decorations in as sections scroll into view
   }, 900);
 }
 
@@ -361,7 +388,9 @@ function initReveal() {
 
 /* ════════════════════════════════════════
    6. RSVP — TOGGLE & VALIDATED SUBMIT
-   Server-side pax validation via Apps Script.
+   Pax is validated client-side (max_pax from
+   Supabase guests table). Row inserted directly
+   into the Supabase "rsvps" table.
 ════════════════════════════════════════ */
 
 let rsvpChoice = 'yes';
@@ -413,33 +442,31 @@ async function submitRSVP() {
   }
 
   try {
-    // POST to Apps Script — server also validates pax ≤ maxPax
-    // Note: Apps Script ignores Content-Type on POST and reads postData.contents directly.
-    // We must NOT set Content-Type header — it triggers a CORS preflight that Apps Script
-    // does not support. Sending as plain text body still works because we JSON.parse() it in doPost.
-    const response = await fetch(APPS_SCRIPT_URL, {
-      method:      'POST',
-      redirect:    'follow',
-      credentials: 'omit',
+    /*
+     * INSERT a row into the "rsvps" table.
+     * Supabase REST: POST /rest/v1/rsvps with JSON body.
+     * pax is capped to guestMaxPax both here (client) and
+     * via a CHECK constraint in the DB (server).
+     */
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/rsvps`, {
+      method:  'POST',
+      headers: SUPA_HEADERS,
       body: JSON.stringify({
-        invitedAs: guestName,   // the ?to= name (who the invite was sent to)
-        name,                   // what they typed
-        pax,
-        phone,
-        attending: rsvpChoice,
+        invited_as: guestName,        // the ?to= name
+        pax:        Math.min(pax, guestMaxPax), // cap client-side too
+        phone:      phone || null,
+        attending:  rsvpChoice,
       }),
     });
 
-    const result = await response.json();
-
-    if (result.result === 'success') {
-      // Show success, clear form
+    if (response.ok) {
       document.getElementById('rsvp-success').classList.add('show');
-      // nameInput is locked — don't clear it, leave the name visible
+      // nameInput is locked — leave it visible
       guestsInput.value = '';
       phoneInput.value  = '';
     } else {
-      throw new Error(result.error || 'Unknown error');
+      const err = await response.json();
+      throw new Error(err.message || `HTTP ${response.status}`);
     }
 
   } catch (err) {
@@ -453,11 +480,12 @@ async function submitRSVP() {
 
 
 /* ════════════════════════════════════════
-   7. WISHES — GOOGLE SHEETS + PEEK CAROUSEL
+   7. WISHES — SUPABASE + PEEK CAROUSEL
 
-   Layout: the active card sits centre-stage
-   at ~78% width. Adjacent cards peek in from
-   left and right so guests can see more exist.
+   Wishes are stored in the Supabase "wishes"
+   table and loaded fresh when the invitation
+   opens. The carousel shows 1 card at a time
+   with adjacent cards peeking in from the sides.
 
    Interaction:
      • Swipe / drag  → move one card
@@ -489,10 +517,27 @@ async function loadWishes() {
   }
 
   try {
-    const url  = `${APPS_SCRIPT_URL}?action=wishes`;
-    const res  = await fetch(url, { redirect: 'follow', credentials: 'omit' });
-    const data = await res.json();
-    wishList   = data.wishes || [];
+    /*
+     * SELECT all wishes, newest first.
+     * order=created_at.desc → most recent at top
+     * select=name,message,created_at → only columns we need
+     */
+    const url = `${SUPABASE_URL}/rest/v1/wishes`
+      + `?select=name,message,created_at`
+      + `&order=created_at.desc`;
+
+    const res  = await fetch(url, { headers: SUPA_HEADERS });
+    const rows = await res.json();
+
+    // Map DB columns to the shape the carousel expects
+    wishList = rows.map(r => ({
+      name:      r.name,
+      message:   r.message,
+      timestamp: r.created_at
+        ? new Date(r.created_at).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })
+        : '',
+    }));
+
     renderCarousel();
   } catch (err) {
     console.error('Could not load wishes:', err);
@@ -746,22 +791,25 @@ async function submitWish() {
   }
 
   try {
-    const res    = await fetch(APPS_SCRIPT_URL, {
-      method:      'POST',
-      redirect:    'follow',
-      credentials: 'omit',
-      body: JSON.stringify({ action: 'wish', name, message }),
+    /*
+     * INSERT a row into the "wishes" table.
+     */
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/wishes`, {
+      method:  'POST',
+      headers: SUPA_HEADERS,
+      body:    JSON.stringify({ name, message }),
     });
-    const result = await res.json();
 
-    if (result.result === 'success') {
+    if (res.ok) {
+      // Optimistically add to front and re-render immediately
       wishList.unshift({ name, message, timestamp: '' });
       wishIndex = 0;
       renderCarousel();
       nameInput.value = '';
       msgInput.value  = '';
     } else {
-      throw new Error(result.error || 'Unknown error');
+      const err = await res.json();
+      throw new Error(err.message || `HTTP ${res.status}`);
     }
   } catch (err) {
     console.error('Wish failed:', err);
@@ -783,16 +831,262 @@ function escapeHtml(str) {
 
 
 /* ════════════════════════════════════════
-   8. COPY TO CLIPBOARD
+   SHARED DECORATION ASSETS
+   Defined once here, reused by both
+   createCoverDecorations() and
+   createInvitationDecorations().
 ════════════════════════════════════════ */
 
-function copyText(text, btn) {
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = 'Copied! ✓';
-    setTimeout(() => btn.textContent = 'Copy Account Number', 2000);
-  }).catch(() => {
-    alert('Please copy manually: ' + text);
+const SVG_FLORAL = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220" fill="none">
+  <circle cx="80" cy="80" r="38" stroke="#b5294e" stroke-width="1" opacity="0.55"/>
+  <circle cx="80" cy="80" r="26" stroke="#b5294e" stroke-width="0.8" opacity="0.45"/>
+  <circle cx="80" cy="80" r="14" stroke="#b5294e" stroke-width="0.8" opacity="0.4"/>
+  <ellipse cx="80" cy="44" rx="12" ry="22" stroke="#b5294e" stroke-width="1" opacity="0.5" transform="rotate(0 80 80)"/>
+  <ellipse cx="80" cy="44" rx="12" ry="22" stroke="#b5294e" stroke-width="1" opacity="0.5" transform="rotate(45 80 80)"/>
+  <ellipse cx="80" cy="44" rx="12" ry="22" stroke="#b5294e" stroke-width="1" opacity="0.5" transform="rotate(90 80 80)"/>
+  <ellipse cx="80" cy="44" rx="12" ry="22" stroke="#b5294e" stroke-width="1" opacity="0.5" transform="rotate(135 80 80)"/>
+  <ellipse cx="80" cy="44" rx="12" ry="22" stroke="#b5294e" stroke-width="1" opacity="0.45" transform="rotate(180 80 80)"/>
+  <ellipse cx="80" cy="44" rx="12" ry="22" stroke="#b5294e" stroke-width="1" opacity="0.45" transform="rotate(225 80 80)"/>
+  <ellipse cx="80" cy="44" rx="12" ry="22" stroke="#b5294e" stroke-width="1" opacity="0.45" transform="rotate(270 80 80)"/>
+  <ellipse cx="80" cy="44" rx="12" ry="22" stroke="#b5294e" stroke-width="1" opacity="0.45" transform="rotate(315 80 80)"/>
+  <path d="M 118 80 Q 155 50 180 20" stroke="#b5294e" stroke-width="1" opacity="0.4" fill="none"/>
+  <path d="M 118 80 Q 170 60 195 30" stroke="#b5294e" stroke-width="0.8" opacity="0.3" fill="none"/>
+  <path d="M 80 118 Q 50 155 20 185" stroke="#b5294e" stroke-width="1" opacity="0.4" fill="none"/>
+  <path d="M 110 110 Q 145 140 165 175" stroke="#b5294e" stroke-width="0.8" opacity="0.35" fill="none"/>
+  <ellipse cx="170" cy="50" rx="8" ry="14" stroke="#b5294e" stroke-width="0.8" opacity="0.4" transform="rotate(-30 170 50)"/>
+  <path d="M 165 60 Q 155 75 148 90" stroke="#b5294e" stroke-width="0.8" opacity="0.3" fill="none"/>
+  <circle cx="150" cy="30"  r="1.5" fill="#c9a44a" opacity="0.7"/>
+  <circle cx="195" cy="65"  r="1"   fill="#c9a44a" opacity="0.6"/>
+  <circle cx="30"  cy="180" r="1.5" fill="#c9a44a" opacity="0.7"/>
+  <circle cx="10"  cy="210" r="1"   fill="#c9a44a" opacity="0.5"/>
+  <circle cx="175" cy="12"  r="1"   fill="#c9a44a" opacity="0.6"/>
+</svg>`;
+
+const SVG_BUTTERFLY = `<svg xmlns="http://www.w3.org/2000/svg" width="55" height="45" viewBox="0 0 55 45" fill="none">
+  <path d="M27 22 Q10 5 2 12 Q-2 22 8 28 Q16 34 27 22Z" stroke="#e8829a" stroke-width="1" fill="rgba(232,130,154,0.12)"/>
+  <path d="M27 22 Q12 30 8 40 Q14 48 22 40 Q28 32 27 22Z" stroke="#e8829a" stroke-width="1" fill="rgba(232,130,154,0.1)"/>
+  <path d="M28 22 Q44 5 52 12 Q56 22 46 28 Q38 34 28 22Z" stroke="#e8829a" stroke-width="1" fill="rgba(232,130,154,0.12)"/>
+  <path d="M28 22 Q42 30 46 40 Q40 48 32 40 Q27 32 28 22Z" stroke="#e8829a" stroke-width="1" fill="rgba(232,130,154,0.1)"/>
+  <line x1="27" y1="15" x2="28" y2="38" stroke="#b5294e" stroke-width="1" opacity="0.6"/>
+  <path d="M27 15 Q22 8 18 4" stroke="#b5294e" stroke-width="0.8" fill="none" opacity="0.5"/>
+  <path d="M28 15 Q33 8 37 4" stroke="#b5294e" stroke-width="0.8" fill="none" opacity="0.5"/>
+  <circle cx="18" cy="4" r="1.5" fill="#b5294e" opacity="0.5"/>
+  <circle cx="37" cy="4" r="1.5" fill="#b5294e" opacity="0.5"/>
+</svg>`;
+
+/**
+ * Watercolour blob — soft radial gradient ellipse.
+ * c1/c2 = inner/outer colour, opacity = peak opacity at centre.
+ */
+function makeWatercolour(id, w, h, cx, cy, rx, ry, c1, c2, opacity = 0.18) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <defs>
+      <radialGradient id="${id}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="${c1}" stop-opacity="${opacity + 0.06}"/>
+        <stop offset="60%"  stop-color="${c2}" stop-opacity="${opacity}"/>
+        <stop offset="100%" stop-color="${c2}" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${id})"/>
+  </svg>`;
+}
+
+/**
+ * Inject decoration <div>s into a section.
+ * items = [{ svg, cls, style }]
+ */
+function injectDecos(sectionId, items) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  if (getComputedStyle(section).position === 'static') section.style.position = 'relative';
+  section.style.overflow = 'hidden';
+  items.forEach(({ svg, cls, style }) => {
+    const el = document.createElement('div');
+    el.className  = 'inv-deco ' + cls;
+    el.style.cssText = style;
+    el.innerHTML  = svg;
+    section.appendChild(el);
   });
+}
+
+
+/* ════════════════════════════════════════
+   COVER DECORATIONS
+   Uses the shared SVG_FLORAL, SVG_BUTTERFLY
+   and makeWatercolour() defined above.
+════════════════════════════════════════ */
+
+function createCoverDecorations() {
+  const cover = document.getElementById('cover');
+  if (!cover) return;
+
+  // Floral corners (top-left + bottom-right)
+  const tl = document.createElement('div');
+  tl.className = 'floral-corner tl';
+  tl.innerHTML = SVG_FLORAL;
+  cover.appendChild(tl);
+
+  const br = document.createElement('div');
+  br.className = 'floral-corner br';
+  br.innerHTML = SVG_FLORAL;
+  cover.appendChild(br);
+
+  // Ribbon swirls
+  ['r1', 'r2'].forEach(cls => {
+    const r = document.createElement('div');
+    r.className = `ribbon ${cls}`;
+    cover.appendChild(r);
+  });
+
+  // Butterflies
+  const b1 = document.createElement('div');
+  b1.className = 'butterfly mid-right';
+  b1.innerHTML = SVG_BUTTERFLY;
+  cover.appendChild(b1);
+
+  const b2 = document.createElement('div');
+  b2.className = 'butterfly lower-left';
+  b2.style.transform = 'scale(0.7) rotate(15deg)';
+  b2.innerHTML = SVG_BUTTERFLY;
+  cover.appendChild(b2);
+}
+
+/* ════════════════════════════════════════
+   INVITATION DECORATIONS
+   Reuses SVG_FLORAL, SVG_BUTTERFLY and
+   makeWatercolour() — the exact same assets
+   as the cover page for visual consistency.
+════════════════════════════════════════ */
+
+function createInvitationDecorations() {
+
+  // ── 1. HERO ─────────────────────────────────────────────────
+  injectDecos('inv-hero', [
+    { svg: makeWatercolour('h1',300,240,150,120,130,100,'#e8829a','#f5c6d0', 0.22),
+      cls: 'deco-splash', style: 'top:-40px;right:-50px;pointer-events:none;z-index:0' },
+    { svg: makeWatercolour('h2',260,200,130,100,110,80,'#c9a44a','#fef6ec', 0.16),
+      cls: 'deco-splash', style: 'bottom:-30px;left:-50px;pointer-events:none;z-index:0' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'top:-20px;left:-20px;pointer-events:none;z-index:0;--deco-opacity:0.7' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'bottom:-20px;right:-20px;transform:rotate(180deg);pointer-events:none;z-index:0;--deco-opacity:0.6' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter', style: 'top:28%;right:4%;pointer-events:none;z-index:1;--deco-opacity:0.8' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter-alt', style: 'top:10%;left:5%;transform:scale(0.75) scaleX(-1);pointer-events:none;z-index:1;--deco-opacity:0.65' },
+  ]);
+
+  // ── 2. COUNTDOWN ────────────────────────────────────────────
+  injectDecos('countdown-section', [
+    { svg: makeWatercolour('c1',220,170,110,85,100,70,'#e8829a','#f5c6d0', 0.15),
+      cls: 'deco-splash', style: 'top:-20px;right:-30px;pointer-events:none' },
+    { svg: makeWatercolour('c2',190,150,95,75,85,60,'#c9a44a','#fef6ec', 0.12),
+      cls: 'deco-splash', style: 'bottom:-20px;left:-30px;pointer-events:none' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'bottom:-10px;right:0;transform:scale(0.55) rotate(20deg);pointer-events:none;--deco-opacity:0.5' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter-alt', style: 'top:8px;left:8px;transform:scale(0.65);pointer-events:none;--deco-opacity:0.55' },
+  ]);
+
+  // ── 3. EVENT DETAILS ────────────────────────────────────────
+  injectDecos('details-section', [
+    { svg: makeWatercolour('d1',260,210,130,105,120,95,'#e8829a','#faeaed', 0.18),
+      cls: 'deco-splash', style: 'top:-30px;left:-40px;pointer-events:none' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'top:-20px;right:-20px;transform:scale(0.6) rotate(30deg);pointer-events:none;--deco-opacity:0.5' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'bottom:-15px;left:5px;transform:scale(0.5) rotate(-15deg);pointer-events:none;--deco-opacity:0.4' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter', style: 'bottom:20px;right:10px;transform:scale(0.8);pointer-events:none;--deco-opacity:0.6' },
+  ]);
+
+  // ── 4. MAP ───────────────────────────────────────────────────
+  injectDecos('map-section', [
+    { svg: makeWatercolour('m1',280,170,140,85,130,70,'#e8829a','#fdf0f3', 0.18),
+      cls: 'deco-splash', style: 'top:0;right:-20px;pointer-events:none' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'top:5px;right:20px;transform:scale(0.45) rotate(-10deg);pointer-events:none;--deco-opacity:0.4' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter-alt', style: 'top:30px;left:15px;transform:scale(0.7) scaleX(-1);pointer-events:none;--deco-opacity:0.55' },
+  ]);
+
+  // ── 5. RSVP ──────────────────────────────────────────────────
+  injectDecos('rsvp-section', [
+    { svg: makeWatercolour('r1',300,250,150,125,140,115,'#e8829a','#faeaed', 0.2),
+      cls: 'deco-splash', style: 'top:-40px;right:-50px;pointer-events:none' },
+    { svg: makeWatercolour('r2',240,200,120,100,110,90,'#c9a44a','#fef6ec', 0.14),
+      cls: 'deco-splash', style: 'bottom:-30px;left:-40px;pointer-events:none' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'top:-30px;left:-30px;transform:scale(0.7);pointer-events:none;--deco-opacity:0.5' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter', style: 'top:35%;right:3%;pointer-events:none;--deco-opacity:0.7' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'bottom:-20px;right:-15px;transform:scale(0.55) rotate(160deg);pointer-events:none;--deco-opacity:0.45' },
+  ]);
+
+  // ── 6. WISHES ────────────────────────────────────────────────
+  injectDecos('wishes-section', [
+    { svg: makeWatercolour('w1',240,190,120,95,110,85,'#f5c6d0','#fdf0f3', 0.18),
+      cls: 'deco-splash', style: 'top:-20px;right:-35px;pointer-events:none' },
+    { svg: makeWatercolour('w2',200,160,100,80,90,70,'#c9a44a','#fef6ec', 0.12),
+      cls: 'deco-splash', style: 'bottom:-20px;left:-30px;pointer-events:none' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'bottom:-10px;right:0;transform:scale(0.5) rotate(10deg);pointer-events:none;--deco-opacity:0.4' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter-alt', style: 'top:12%;right:4%;transform:scale(0.7);pointer-events:none;--deco-opacity:0.6' },
+  ]);
+
+  // ── 7. GIFT ──────────────────────────────────────────────────
+  injectDecos('gift-section', [
+    { svg: makeWatercolour('g1',260,210,130,105,120,95,'#e8829a','#faeaed', 0.17),
+      cls: 'deco-splash', style: 'top:-30px;right:-40px;pointer-events:none' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'bottom:-20px;left:-15px;transform:scale(0.55) rotate(-20deg);pointer-events:none;--deco-opacity:0.45' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter', style: 'top:10px;right:15px;transform:scale(0.65) scaleX(-1);pointer-events:none;--deco-opacity:0.55' },
+  ]);
+
+  // ── 8. THANK YOU ─────────────────────────────────────────────
+  injectDecos('ty-section', [
+    { svg: makeWatercolour('t1',380,310,190,155,175,140,'#e8829a','#f5c6d0', 0.22),
+      cls: 'deco-splash', style: 'top:-50px;right:-60px;pointer-events:none' },
+    { svg: makeWatercolour('t2',320,260,160,130,150,120,'#c9a44a','#fef6ec', 0.18),
+      cls: 'deco-splash', style: 'bottom:-50px;left:-60px;pointer-events:none' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'top:-20px;left:-20px;pointer-events:none;--deco-opacity:0.65' },
+    { svg: SVG_FLORAL,
+      cls: 'deco-floral', style: 'bottom:-20px;right:-20px;transform:rotate(180deg) scaleX(-1);pointer-events:none;--deco-opacity:0.6' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter', style: 'top:8%;right:6%;pointer-events:none;--deco-opacity:0.8' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter-alt', style: 'top:22%;left:5%;transform:scaleX(-1);pointer-events:none;--deco-opacity:0.7' },
+    { svg: SVG_BUTTERFLY,
+      cls: 'deco-butterfly deco-flutter', style: 'bottom:12%;right:9%;transform:scale(0.75);pointer-events:none;--deco-opacity:0.6' },
+  ]);
+}
+
+/* ════════════════════════════════════════
+   DECORATION REVEAL
+   Fades .inv-deco elements in as their
+   parent section scrolls into view.
+════════════════════════════════════════ */
+
+function initDecoReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        // Stagger each decoration slightly so they don't all pop at once
+        e.target.querySelectorAll('.inv-deco').forEach((el, i) => {
+          setTimeout(() => el.classList.add('deco-visible'), i * 80);
+        });
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll(
+    '#inv-hero, #countdown-section, #details-section, #map-section, ' +
+    '#rsvp-section, #wishes-section, #gift-section, #ty-section'
+  ).forEach(s => obs.observe(s));
 }
 
 
@@ -801,4 +1095,5 @@ function copyText(text, btn) {
 ════════════════════════════════════════ */
 
 createPetals();
-initGuest(); // reads URL, fetches guest data from Sheets
+createCoverDecorations();
+initGuest(); // reads URL, fetches guest data from Supabase

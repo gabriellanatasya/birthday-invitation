@@ -6,7 +6,7 @@
   <title>75th Birthday Invitation</title>
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/base.css"/>
@@ -36,23 +36,24 @@
 
     <!-- Cover text content -->
     <div class="cover-content">
-      <p class="cover-tag">✦ &nbsp; A Milestone Celebration &nbsp; ✦</p>
 
       <p class="cover-dear">Dear,</p>
-      <h1 class="cover-guest">Guest</h1>   <!-- ← CHANGE: Guest name -->
+      <h1 class="cover-guest">Sarah</h1>   <!-- ← CHANGE: Guest name -->
 
-      <div class="divider">
-        <div class="dline"></div>
-        <span class="dicon">✦ ✦ ✦</span>
-        <div class="dline r"></div>
+      <!-- "You Are Invited To" — italic serif like the reference -->
+      <p class="cover-tag">You Are Invited To</p>
+
+      <!-- "Yunis  75th" lockup -->
+      <div class="cover-name-milestone">
+        <span class="cover-name">Yunis</span>  <!-- ← CHANGE: birthday person -->
+        <span class="cover-milestone">75</span>
+        <span class="cover-milestone-sup">th</span>
       </div>
 
-      <p class="cover-invited">You are warmly invited to celebrate</p>
-      <p class="cover-subtitle">The 75th Birthday of</p>
-      <div class="cover-milestone">75</div>
-      <p class="cover-name">Alicia</p>    <!-- ← CHANGE: Birthday person's name -->
+      <!-- "Birthday Party" in large italic -->
+      <p class="cover-birthday-party">Birthday Party</p>
 
-      <!-- Status shown while checking the guest list -->
+      <!-- Validation status while checking guest list -->
       <p id="cover-status"></p>
 
       <button class="btn-open" id="btn-open" onclick="openInvitation()">
@@ -71,13 +72,20 @@
 
     <!-- ── 1. HERO BANNER ── -->
     <div id="inv-hero">
-      <div class="hero-75">75</div>
       <div class="hero-inner">
-        <p class="hero-tag">✦ &nbsp; Milestone Birthday &nbsp; ✦</p>
-        <div class="hero-milestone">75</div>
-        <p class="hero-years">Years of Grace &nbsp;·&nbsp; Love &nbsp;·&nbsp; Joy</p>
-        <div class="hero-name">Alicia</div>   <!-- ← CHANGE: Birthday person's name -->
-        <p class="hero-sub">Birthday Celebration</p>
+        <p class="hero-tag">You Are Invited To</p>
+
+        <!-- "Yunis  75th" lockup -->
+        <div class="hero-name-milestone">
+          <span class="hero-name">Yunis</span>   <!-- ← CHANGE: name -->
+          <span class="hero-milestone">75</span>
+          <span class="hero-milestone-sup">th</span>
+        </div>
+
+        <!-- "Birthday Party" -->
+        <p class="hero-birthday-party">Birthday Party</p>
+
+        <p class="hero-sub">✦ &nbsp; A Milestone Celebration &nbsp; ✦</p>
       </div>
     </div>
 
@@ -88,7 +96,7 @@
         <h2 class="s-title reveal">The Big Day</h2>
         <div class="pk-line reveal" style="margin:18px auto"></div>
         <p class="reveal event-date-label">
-          Saturday, 18 April 2026 &nbsp;·&nbsp; 18.00 WIB
+          Saturday, 18 April 2026 &nbsp;·&nbsp; 17.30 WIB
                                 <!-- ← CHANGE: Date and time -->
         </p>
         <div class="cd-grid">
@@ -111,7 +119,7 @@
           <div class="detail-icon">📅</div>
           <div>
             <p class="di-label">Date &amp; Time</p>
-            <p class="di-value">Saturday, 18 April 2026 · 18.00 WIB</p>
+            <p class="di-value">Saturday, 18 April 2026 · 17.30 WIB</p>
                                               <!-- ← CHANGE -->
           </div>
         </div>
@@ -120,7 +128,7 @@
           <div class="detail-icon">📍</div>
           <div>
             <p class="di-label">Venue</p>
-            <p class="di-value">The Grand Ballroom, Hotel Majapahit</p>
+            <p class="di-value">Restaurant Double Happiness</p>
                                               <!-- ← CHANGE -->
           </div>
         </div>
@@ -129,12 +137,12 @@
           <div class="detail-icon">🏠</div>
           <div>
             <p class="di-label">Address</p>
-            <p class="di-value">Jl. Tunjungan No. 65, Surabaya, Jawa Timur 60275</p>
+            <p class="di-value">Jl.Kombes. Pol. M.Duryat no 41, Surabaya</p>
                                               <!-- ← CHANGE -->
           </div>
         </div>
 
-        <div class="detail-row reveal" style="border:none">
+        <!-- <div class="detail-row reveal" style="border:none">
           <div class="detail-icon">👗</div>
           <div>
             <p class="di-label">Dress Code</p>
@@ -157,7 +165,7 @@
       -->
       <iframe
         class="map-frame"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3957.619!2d112.7376!3d-7.2575!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7fb1cf1a87fb3%3A0x18a05b3dbbec8caf!2sHotel%20Majapahit%20Surabaya!5e0!3m2!1sen!2sid!4v1"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3957.7624905058346!2d112.7345464750833!3d-7.267847171412204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7fbe023643461%3A0xe6c74c7a432f169c!2sDouble%20Happiness%20International%20Restaurant!5e0!3m2!1sen!2sid!4v1775391007899!5m2!1sen!2sid"
         allowfullscreen="" loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
         title="Event Location">
@@ -173,7 +181,7 @@
         <p class="reveal rsvp-note">
           Please confirm your attendance before
           <strong style="color:var(--pink-soft)">10 April 2026</strong>
-          so we can prepare a perfect celebration for Alicia's 75th birthday.
+          so we can prepare a perfect celebration for Yunis's 75th birthday.
                                     <!-- ← CHANGE: RSVP deadline & name -->
         </p>
 
@@ -228,7 +236,7 @@
         <h2 class="s-title reveal">Leave Your Wishes</h2>
         <div class="pk-line reveal"></div>
         <p class="reveal" style="color:#a05070;font-size:0.9rem;margin-bottom:28px;line-height:1.8">
-          Share a message of love &amp; blessings for Alicia's 75th birthday.
+          Share a message of love &amp; blessings for Yunis's 75th birthday.
                                                       <!-- ← CHANGE: name -->
         </p>
 
@@ -258,7 +266,7 @@
         <div class="pk-line reveal"></div>
         <p class="reveal" style="color:#888;font-size:0.9rem;margin-bottom:32px;line-height:1.9">
           Your presence is the most precious gift of all. If you wish to send a token of love
-          to celebrate Alicia's 75 wonderful years, you may transfer to the accounts below.
+          to celebrate Yunis's 75 wonderful years, you may transfer to the accounts below.
                                                               <!-- ← CHANGE: name -->
         </p>
 
@@ -267,36 +275,35 @@
         <div class="bank-card reveal">
           <p class="bank-name">BCA — Bank Central Asia</p>
           <p class="bank-num">1234 5678 90</p>
-          <p class="bank-holder">a/n Alicia Putri Santoso</p>
+          <p class="bank-holder">a/n Yunis</p>
           <button class="copy-btn" onclick="copyText('1234567890', this)">Copy Account Number</button>
         </div>
 
         <!-- Bank account 2 -->
-        <div class="bank-card reveal">
+        <!-- <div class="bank-card reveal">
           <p class="bank-name">Mandiri</p>
           <p class="bank-num">1400 1234 5678</p>
           <p class="bank-holder">a/n Alicia Putri Santoso</p>
           <button class="copy-btn" onclick="copyText('14001234 5678', this)">Copy Account Number</button>
-        </div>
+        </div> -->
       </div>
     </div>
 
     <!-- ── 8. THANK YOU ── -->
     <div id="ty-section">
-      <div class="ty-75">75</div>
       <div class="ty-inner">
         <div class="ty-gem">✦ &nbsp; ✦ &nbsp; ✦</div>
         <h2 class="ty-title">Thank You</h2>
         <p class="ty-sub">
-          We are deeply grateful for your love and presence.<br>
-          Celebrating 75 years of Alicia's beautiful life<br>
-          is a blessing we wish to share with you.<br><br>
-          We look forward to seeing you there.
+          Kehadiran Bp/Ibu/Sdr/i<br>
+          sangat berharga bagi kami.
         </p>
-        <p class="ty-sig">With Love &nbsp;·&nbsp; Alicia &amp; Family</p>
+        <p class="ty-closing">We look forward to celebrating with you.</p>
+        <br>
+        <p class="ty-sig">With Love · Yunis &amp; Family</p>
                                               <!-- ← CHANGE: name -->
         <br><br>
-        <div class="ty-gem" style="font-size:1rem">✦</div>
+        <div class="ty-gem" style="font-size:0.9rem">✦</div>
       </div>
     </div>
 

@@ -1,107 +1,127 @@
 /* ============================================================
-   invitation.css
-   Styles for all sections inside #invitation:
-   hero, countdown, details, map, rsvp, wishes, gift, thank-you
+   invitation.css  —  All sections inside #invitation
+   THEME: Soft floral — cream, deep rose, gold accents
    ============================================================ */
 
+#invitation { display: none; }
 
-/* ── INVITATION WRAPPER ── */
-#invitation {
-  display: none; /* shown by JS after button click */
-}
+
+/* ════════════════════════════════════════
+   SHARED SECTION BACKGROUNDS
+   Alternating warm cream tones, no dark sections.
+════════════════════════════════════════ */
+#inv-hero         { background: linear-gradient(160deg, #faeaed 0%, #fdf7f0 60%, #fef6ec 100%); }
+#countdown-section{ background: #fff; }
+#details-section  { background: var(--cream); }
+#map-section      { background: #faeaed; }
+#rsvp-section     { background: linear-gradient(160deg, #fdf7f0 0%, #faeaed 100%); }
+#wishes-section   { background: #fff; }
+#gift-section     { background: var(--cream); }
+#ty-section       { background: linear-gradient(160deg, #faeaed 0%, #fdf7f0 60%, #fef6ec 100%); }
 
 
 /* ════════════════════════════════════════
    1. HERO BANNER
 ════════════════════════════════════════ */
 #inv-hero {
-  background: linear-gradient(160deg, var(--dark2) 0%, var(--dark) 60%);
-  padding: 110px 24px 90px;
+  padding: 90px 24px 70px;
   text-align: center;
   position: relative;
   overflow: hidden;
 }
 
+/* Linen texture lines */
 #inv-hero::before {
   content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 50% -10%, rgba(212, 168, 67, 0.18) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 110%, rgba(232, 130, 154, 0.2) 0%, transparent 50%);
-}
-
-/* Large "75" watermark behind the hero text */
-.hero-75 {
-  position: absolute;
-  font-family: 'Cinzel', serif;
-  font-weight: 600;
-  font-size: clamp(160px, 35vw, 280px);
-  color: rgba(232, 130, 154, 0.07);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  line-height: 1;
-  user-select: none;
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(181,41,78,0.025) 0px,
+    rgba(181,41,78,0.025) 1px,
+    transparent 1px,
+    transparent 18px
+  );
   pointer-events: none;
 }
 
-.hero-inner {
-  position: relative;
-  z-index: 1;
+/* Gold speckle dots */
+#inv-hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(201,164,74,0.5) 1px, transparent 1px),
+    radial-gradient(circle, rgba(201,164,74,0.3) 1px, transparent 1px);
+  background-size: 45px 45px, 75px 75px;
+  background-position: 8px 10px, 28px 35px;
+  pointer-events: none;
+  opacity: 0.6;
 }
+
+.hero-inner { position: relative; z-index: 1; }
 
 .hero-tag {
-  font-size: 0.6rem;
-  letter-spacing: 0.45em;
-  color: var(--gold);
-  text-transform: uppercase;
-  font-weight: 300;
-  margin-bottom: 18px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(0.85rem, 2vw, 1.05rem);
+  color: var(--rose);
+  letter-spacing: 0.14em;
+  margin-bottom: 16px;
 }
 
-/* Gradient "75" */
-.hero-milestone {
-  font-family: 'Cinzel', serif;
-  font-weight: 600;
-  font-size: clamp(3.5rem, 12vw, 8rem);
-  line-height: 1;
-  letter-spacing: 0.02em;
-  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 35%, var(--pink) 65%, var(--gold-light) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 8px;
-}
-
-.hero-years {
-  font-family: 'Lato', sans-serif;
-  font-weight: 300;
-  letter-spacing: 0.5em;
-  font-size: clamp(0.55rem, 1.5vw, 0.75rem);
-  color: var(--gold-light);
-  text-transform: uppercase;
-  margin-bottom: 22px;
-  opacity: 0.8;
+/* "Alicia  75th" row */
+.hero-name-milestone {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
 }
 
 .hero-name {
   font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.8rem, 9vw, 5.5rem);
+  color: var(--rose);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.hero-milestone {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(3rem, 10vw, 6rem);
+  color: var(--rose);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.hero-milestone-sup {
+  font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-weight: 300;
-  font-size: clamp(2.4rem, 7vw, 4.8rem);
-  color: var(--cream);
-  line-height: 1.1;
-  margin-bottom: 10px;
+  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  color: var(--rose);
+  align-self: flex-start;
+  margin-top: 10px;
+}
+
+/* "Birthday Party" */
+.hero-birthday-party {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(2.2rem, 7vw, 4rem);
+  color: var(--rose);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 6px 0 16px;
 }
 
 .hero-sub {
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.22em;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.42em;
   text-transform: uppercase;
-  font-size: clamp(0.6rem, 1.5vw, 0.78rem);
-  color: var(--pink-soft);
-  opacity: 0.75;
+  color: var(--gold-dark);
+  font-weight: 300;
+  opacity: 0.8;
 }
 
 
@@ -109,66 +129,64 @@
    2. COUNTDOWN
 ════════════════════════════════════════ */
 #countdown-section {
-  background: linear-gradient(135deg, #fce8ee 0%, #fdf0f3 50%, #fef8ee 100%);
   text-align: center;
-  border-top: 1px solid rgba(232, 130, 154, 0.25);
-  border-bottom: 1px solid rgba(212, 168, 67, 0.2);
+  border-top: 1px solid rgba(181,41,78,0.1);
+  border-bottom: 1px solid rgba(181,41,78,0.1);
 }
 
-#countdown-section .s-title { color: var(--dark2); }
-#countdown-section .s-label { color: var(--pink-deep); }
+#countdown-section .s-title { font-style: italic; color: var(--rose); }
+#countdown-section .s-label { color: var(--gold-dark); }
 
-/* Italic date label above countdown */
 .event-date-label {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  color: #a05070;
   font-size: 1.1rem;
+  color: var(--rose-mid);
 }
 
-/* Grid of 4 countdown boxes */
 .cd-grid {
   display: flex;
   gap: 14px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 36px;
+  margin-top: 32px;
 }
 
 .cd-box {
-  min-width: 82px;
-  padding: 22px 14px;
-  background: #fff;
-  border-top: 3px solid var(--pink);
-  box-shadow: 0 4px 24px rgba(196, 85, 110, 0.1);
+  min-width: 80px;
+  padding: 20px 14px;
+  background: var(--cream);
+  border: 1px solid rgba(181,41,78,0.15);
+  border-top: 2px solid var(--rose-light);
   position: relative;
 }
 
-/* Pink-to-gold bottom bar */
+/* Gold-to-rose bottom accent */
 .cd-box::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(to right, var(--pink), var(--gold));
+  height: 1px;
+  background: linear-gradient(to right, var(--gold), var(--rose-light));
 }
 
 .cd-num {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 3.2rem;
+  font-size: 3rem;
   font-weight: 600;
-  color: var(--pink-deep);
+  color: var(--rose);
   line-height: 1;
   display: block;
 }
 
 .cd-lbl {
-  font-size: 0.58rem;
-  letter-spacing: 0.22em;
+  font-size: 0.55rem;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #aaa;
+  color: var(--gold-dark);
   margin-top: 6px;
   display: block;
+  opacity: 0.75;
 }
 
 @media (max-width: 500px) {
@@ -180,35 +198,28 @@
 /* ════════════════════════════════════════
    3. EVENT DETAILS
 ════════════════════════════════════════ */
-#details-section {
-  background: var(--cream);
-}
+#details-section .s-title { color: var(--rose); }
 
 .detail-row {
   display: flex;
   gap: 18px;
   align-items: flex-start;
-  padding: 20px 0;
-  border-bottom: 1px solid rgba(232, 130, 154, 0.18);
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(181,41,78,0.1);
 }
 
-/* Square icon badge */
 .detail-icon {
-  width: 42px;
-  height: 42px;
+  width: 40px; height: 40px;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--pink-soft), var(--blush));
-  border: 1px solid rgba(232, 130, 154, 0.3);
-  font-size: 1.1rem;
-  color: var(--pink-deep);
-  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(245,198,208,0.3);
+  border: 1px solid rgba(181,41,78,0.15);
+  font-size: 1rem;
+  border-radius: 50%;
 }
 
 .di-label {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold-dark);
@@ -217,169 +228,125 @@
 
 .di-value {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.2rem;
-  color: var(--dark);
+  font-size: 1.15rem;
+  color: var(--rose);
 }
 
 
 /* ════════════════════════════════════════
-   4. GOOGLE MAP
+   4. MAP
 ════════════════════════════════════════ */
-#map-section {
-  background: var(--blush);
-  padding: 0;
-}
+#map-section { padding: 0; }
 
-/* Label bar above the iframe */
 .map-bar {
-  padding: 52px 24px 28px;
-  max-width: 760px;
+  padding: 50px 24px 24px;
+  max-width: 720px;
   margin: 0 auto;
 }
 
+.map-bar .s-title { color: var(--rose); }
+
 .map-frame {
-  width: 100%;
-  height: 380px;
-  border: none;
-  display: block;
+  width: 100%; height: 360px;
+  border: none; display: block;
+  border-top: 2px solid rgba(181,41,78,0.12);
 }
 
 
 /* ════════════════════════════════════════
    5. RSVP
 ════════════════════════════════════════ */
-#rsvp-section {
-  background: linear-gradient(160deg, var(--dark2) 0%, #1e0810 100%);
-  color: var(--cream);
-}
-
-#rsvp-section .s-title { color: var(--cream); }
-#rsvp-section .s-label { color: var(--gold-light); }
+#rsvp-section .s-title { color: var(--rose); }
+#rsvp-section .s-label { color: var(--gold-dark); }
 
 .rsvp-note {
-  color: rgba(245, 198, 208, 0.7);
+  color: var(--rose-mid);
   font-size: 0.9rem;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   line-height: 1.9;
+  opacity: 0.85;
 }
 
-/* Yes / No toggle buttons */
-.toggle-row {
-  display: flex;
-  margin-bottom: 20px;
-}
+.toggle-row { display: flex; margin-bottom: 20px; }
 
 .tog-btn {
   flex: 1;
-  padding: 14px;
-  background: transparent;
-  border: 1px solid rgba(232, 130, 154, 0.3);
-  color: rgba(253, 240, 243, 0.45);
-  font-family: 'Cinzel', serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.15em;
+  padding: 13px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(181,41,78,0.2);
+  color: rgba(181,41,78,0.45);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
   cursor: pointer;
   transition: all 0.3s;
 }
 
-.tog-btn:first-child {
-  border-right: none;
-}
+.tog-btn:first-child { border-right: none; }
 
 .tog-btn.active {
-  background: linear-gradient(135deg, var(--pink-deep), var(--gold-dark));
+  background: var(--rose);
   color: #fff;
-  border-color: transparent;
+  border-color: var(--rose);
 }
 
 
 /* ════════════════════════════════════════
    6. WISHES — PEEK CAROUSEL
-   The active card takes ~78% of the width.
-   The next/prev cards peek in from the sides,
-   giving a clear visual hint that more exist.
 ════════════════════════════════════════ */
-#wishes-section {
-  background: var(--pink-pale);
-}
+#wishes-section .s-title { color: var(--rose); }
+#wishes-section .s-label { color: var(--gold-dark); }
 
-#wishes-section .s-title { color: var(--dark2); }
-#wishes-section .s-label { color: var(--pink-deep); }
-
-/*
-  Viewport window — clips the peeking cards.
-  overflow:hidden hides anything outside,
-  but we add horizontal padding so the peek
-  is visible while the edges stay clipped.
-*/
 .wishes-viewport {
   overflow: hidden;
   margin-top: 32px;
-  /* Padding creates the visible peek space on each side */
   padding: 12px 40px;
-  margin-left:  -40px;
+  margin-left: -40px;
   margin-right: -40px;
   cursor: grab;
 }
+.wishes-viewport:active { cursor: grabbing; }
 
-.wishes-viewport:active {
-  cursor: grabbing;
-}
-
-/*
-  Sliding track — sits inside the viewport.
-  Each step moves by (cardWidth + gap) px,
-  calculated in JS and applied as translateX.
-*/
 .wishes-track {
   display: flex;
   gap: 16px;
   transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
-  /* No width constraint — track grows with cards */
 }
 
-/*
-  Individual card.
-  flex-shrink:0 prevents cards from squishing.
-  Width is set by JS as a CSS custom property
-  so it can be calculated from container size.
-*/
 .wish-card {
   flex: 0 0 var(--card-w, 78%);
-  background: #fff;
-  border: 1px solid rgba(232, 130, 154, 0.18);
+  background: var(--cream);
+  border: 1px solid rgba(181,41,78,0.12);
+  border-top: 2px solid var(--rose-light);
   padding: 32px 28px 24px;
   position: relative;
-  box-shadow: 0 4px 28px rgba(196, 85, 110, 0.09);
+  box-shadow: 0 4px 24px rgba(181,41,78,0.06);
   min-height: 190px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
-  /* Cards scale down and fade slightly when not active */
   transition: transform 0.42s ease, opacity 0.42s ease, box-shadow 0.42s ease;
   transform: scale(0.96);
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
-/* Active card — full size, full opacity */
 .wish-card.active {
   transform: scale(1);
   opacity: 1;
-  box-shadow: 0 8px 40px rgba(196, 85, 110, 0.16);
+  box-shadow: 0 8px 36px rgba(181,41,78,0.12);
 }
 
-/* Decorative opening quote */
 .wish-card::before {
-  content: '';
+  content: '\201C';
   position: absolute;
-  top: 6px;
-  left: 14px;
+  top: 6px; left: 14px;
   font-family: 'Cormorant Garamond', serif;
   font-size: 4rem;
-  color: var(--pink);
-  opacity: 0.18;
+  color: var(--rose-light);
+  opacity: 0.5;
   line-height: 1;
   pointer-events: none;
 }
@@ -387,12 +354,11 @@
 .wish-text {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 1.08rem;
-  color: var(--dark);
+  font-size: 1.05rem;
+  color: var(--rose);
   line-height: 1.75;
   margin-bottom: 16px;
   flex: 1;
-  /* Clamp long wishes to 4 lines with a fade-out */
   display: -webkit-box;
   -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
@@ -403,28 +369,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 4px;
 }
 
 .wish-author {
-  font-size: 0.63rem;
+  font-size: 0.62rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--pink-deep);
+  color: var(--rose-mid);
 }
 
 .wish-date {
   font-size: 0.58rem;
   letter-spacing: 0.1em;
-  color: #ccc;
+  color: var(--gold-dark);
+  opacity: 0.6;
 }
 
-/* ── Arrow buttons ── */
-/*
-  Sit below the carousel, centred.
-  Not overlaid on top so they don't block
-  the peek effect visually.
-*/
 .wish-arrows {
   display: flex;
   justify-content: center;
@@ -433,36 +393,31 @@
 }
 
 .wish-arrow {
-  width: 38px;
-  height: 38px;
+  width: 36px; height: 36px;
   background: #fff;
-  border: 1px solid rgba(232, 130, 154, 0.35);
+  border: 1px solid rgba(181,41,78,0.2);
   border-radius: 50%;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--pink-deep);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--rose);
   font-size: 1rem;
   transition: all 0.25s;
-  box-shadow: 0 2px 10px rgba(196, 85, 110, 0.1);
+  box-shadow: 0 2px 8px rgba(181,41,78,0.08);
 }
 
 .wish-arrow:hover {
-  background: var(--pink);
-  border-color: var(--pink);
+  background: var(--rose);
+  border-color: var(--rose);
   color: #fff;
-  box-shadow: 0 4px 18px rgba(196, 85, 110, 0.25);
 }
 
 .wish-arrow:disabled {
-  opacity: 0.22;
+  opacity: 0.2;
   cursor: default;
   pointer-events: none;
   box-shadow: none;
 }
 
-/* ── Dot indicators ── */
 .wish-dots {
   display: flex;
   justify-content: center;
@@ -472,72 +427,66 @@
 }
 
 .wish-dot {
-  width: 6px;
-  height: 6px;
+  width: 6px; height: 6px;
   border-radius: 50%;
-  background: rgba(232, 130, 154, 0.22);
+  background: rgba(181,41,78,0.2);
   cursor: pointer;
   transition: all 0.3s;
-  border: none;
-  padding: 0;
-  flex-shrink: 0;
+  border: none; padding: 0;
 }
 
 .wish-dot.active {
-  background: var(--pink);
-  width: 18px;            /* active dot stretches into a pill */
+  background: var(--rose);
+  width: 18px;
   border-radius: 3px;
 }
 
-/* ── Counter "2 / 7" ── */
 .wish-counter {
   text-align: center;
   font-size: 0.62rem;
   letter-spacing: 0.22em;
-  color: var(--pink-deep);
+  color: var(--rose-mid);
   opacity: 0.55;
   margin-top: 8px;
 }
 
-/* ── Empty / loading state ── */
 .wishes-empty {
   text-align: center;
   padding: 40px 20px;
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  color: #bbb;
+  color: var(--rose-light);
   font-size: 1rem;
 }
 
 
 /* ════════════════════════════════════════
-   7. GIFT / BANK TRANSFER
+   7. GIFT / BANK
 ════════════════════════════════════════ */
-#gift-section {
-  background: var(--cream);
-}
+#gift-section .s-title { color: var(--rose); }
 
 .bank-card {
   background: #fff;
-  padding: 28px 32px;
+  padding: 26px 30px;
   margin-bottom: 16px;
-  border-left: 3px solid var(--pink);         /* pink left accent */
-  box-shadow: 0 4px 24px rgba(212, 168, 67, 0.08);
+  border: 1px solid rgba(181,41,78,0.12);
+  border-left: 3px solid var(--rose-light);
+  border-radius: 2px;
+  box-shadow: 0 2px 16px rgba(181,41,78,0.05);
   position: relative;
 }
 
-/* Gold right accent bar */
 .bank-card::after {
   content: '';
   position: absolute;
   top: 0; right: 0; bottom: 0;
-  width: 3px;
-  background: linear-gradient(to bottom, var(--gold), var(--pink));
+  width: 2px;
+  background: linear-gradient(to bottom, var(--gold), var(--rose-light));
 }
 
 .bank-name {
   font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--gold-dark);
   margin-bottom: 8px;
   letter-spacing: 0.1em;
@@ -546,37 +495,38 @@
 .bank-num {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.8rem;
-  color: var(--dark);
+  color: var(--rose);
   letter-spacing: 0.1em;
   margin-bottom: 4px;
 }
 
 .bank-holder {
-  font-size: 0.72rem;
-  color: #999;
+  font-size: 0.7rem;
+  color: var(--rose-mid);
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  opacity: 0.7;
 }
 
 .copy-btn {
   display: inline-block;
-  margin-top: 14px;
-  padding: 8px 22px;
-  border: 1px solid var(--pink);
+  margin-top: 12px;
+  padding: 7px 20px;
+  border: 1px solid var(--rose-light);
   background: transparent;
-  color: var(--pink-deep);
-  font-size: 0.62rem;
-  letter-spacing: 0.22em;
+  color: var(--rose-mid);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   cursor: pointer;
   font-family: 'Lato', sans-serif;
   transition: all 0.3s;
+  border-radius: 2px;
 }
 
 .copy-btn:hover {
-  background: var(--pink);
-  color: #fff;
-  border-color: var(--pink);
+  background: var(--rose-light);
+  color: var(--rose);
 }
 
 
@@ -584,33 +534,36 @@
    8. THANK YOU
 ════════════════════════════════════════ */
 #ty-section {
-  background: linear-gradient(160deg, #3d1220 0%, var(--dark) 60%, #1a0809 100%);
   text-align: center;
-  padding: 110px 24px 90px;
+  padding: 100px 24px 80px;
   position: relative;
   overflow: hidden;
 }
 
+/* Gold speckle dots */
 #ty-section::before {
   content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 50% 110%, rgba(232, 130, 154, 0.2) 0%, transparent 55%),
-    radial-gradient(ellipse at 10% 50%,  rgba(212, 168,  67, 0.12) 0%, transparent 40%);
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(201,164,74,0.45) 1px, transparent 1px),
+    radial-gradient(circle, rgba(201,164,74,0.28) 1px, transparent 1px);
+  background-size: 42px 42px, 68px 68px;
+  background-position: 6px 9px, 24px 32px;
+  pointer-events: none;
+  opacity: 0.8;
 }
 
-/* Decorative "75" bottom-right */
-.ty-75 {
-  position: absolute;
-  font-family: 'Cinzel', serif;
-  font-weight: 600;
-  font-size: clamp(160px, 35vw, 280px);
-  color: rgba(232, 130, 154, 0.05);
-  bottom: -30px;
-  right: -20px;
-  line-height: 1;
-  user-select: none;
+/* Linen lines */
+#ty-section::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(181,41,78,0.025) 0px,
+    rgba(181,41,78,0.025) 1px,
+    transparent 1px,
+    transparent 18px
+  );
   pointer-events: none;
 }
 
@@ -620,37 +573,192 @@
 }
 
 .ty-gem {
-  font-size: 1.4rem;
-  letter-spacing: 0.5em;
-  color: var(--gold);
-  opacity: 0.6;
-  margin-bottom: 32px;
+  font-size: 1.2rem;
+  letter-spacing: 0.4em;
+  color: var(--rose-light);
+  margin-bottom: 28px;
 }
 
 .ty-title {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-weight: 300;
-  font-size: clamp(2.8rem, 8vw, 5.5rem);
-  color: var(--cream);
+  font-weight: 400;
+  font-size: clamp(2.8rem, 8vw, 5rem);
+  color: var(--rose);
   margin-bottom: 20px;
   line-height: 1.1;
 }
 
 .ty-sub {
-  font-family: 'Lato', sans-serif;
-  font-weight: 300;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
   line-height: 1.9;
-  font-size: 0.95rem;
-  color: rgba(245, 198, 208, 0.8);
+  font-size: 1.05rem;
+  color: var(--rose-mid);
   max-width: 400px;
-  margin: 0 auto 32px;
+  margin: 0 auto 28px;
+  opacity: 0.9;
+}
+
+.ty-closing {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--rose);
+  letter-spacing: 0.08em;
 }
 
 .ty-sig {
-  font-family: 'Cinzel', serif;
-  font-size: 0.7rem;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.62rem;
   letter-spacing: 0.32em;
-  color: var(--gold);
+  color: var(--gold-dark);
   text-transform: uppercase;
+  opacity: 0.75;
+  margin-top: 8px;
+}
+
+
+/* ════════════════════════════════════════
+   INVITATION DECORATIONS
+   Watercolour splashes, flower sketches,
+   butterflies injected by JS into each section.
+════════════════════════════════════════ */
+
+/* ════════════════════════════════════════
+   INVITATION DECORATIONS — CLEAN LAYOUT
+   Inspired by elegant corner floral design
+════════════════════════════════════════ */
+
+/* ════════════════════════════════════════
+   INVITATION DECORATIONS — SAME AS COVER
+   Clean, consistent, reusable
+════════════════════════════════════════ */
+
+.inv-deco {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.inv-deco.deco-visible {
+  opacity: var(--deco-opacity, 0.6);
+}
+
+/* ════════════════════════════════════════
+   CORNER SYSTEM (LIKE COVER)
+════════════════════════════════════════ */
+
+/* Top-left main flower */
+.deco-tl {
+  top: -40px;
+  left: -40px;
+  width: var(--deco-size, 220px);
+}
+
+/* Bottom-right main flower */
+.deco-br {
+  bottom: -40px;
+  right: -40px;
+  width: var(--deco-size, 220px);
+}
+
+/* Optional accent corners (lighter) */
+.deco-tr {
+  top: -20px;
+  right: -20px;
+  width: calc(var(--deco-size, 220px) * 0.6);
+  opacity: 0.35;
+}
+
+.deco-bl {
+  bottom: -20px;
+  left: -20px;
+  width: calc(var(--deco-size, 220px) * 0.6);
+  opacity: 0.35;
+}
+
+/* ════════════════════════════════════════
+   WATERCOLOUR (MATCH COVER FLOW)
+════════════════════════════════════════ */
+
+.deco-splash {
+  filter: blur(6px);
+  opacity: 0.45;
+  z-index: 0;
+}
+
+/* top-right splash */
+.deco-splash-tr {
+  top: -60px;
+  right: -40px;
+  width: 260px;
+}
+
+/* bottom-left splash */
+.deco-splash-bl {
+  bottom: -60px;
+  left: -40px;
+  width: 260px;
+}
+
+/* ════════════════════════════════════════
+   BUTTERFLY (MINIMAL LIKE COVER)
+════════════════════════════════════════ */
+
+.deco-butterfly {
+  z-index: 2;
+  width: 32px;
+  opacity: 0.7;
+}
+
+/* one near title */
+.deco-butterfly-mid {
+  top: 40%;
+  left: 20%;
+}
+
+/* one accent */
+.deco-butterfly-br {
+  bottom: 25%;
+  right: 22%;
+  opacity: 0.55;
+}
+
+/* subtle movement only */
+.deco-float {
+  animation: float-soft 6s ease-in-out infinite alternate;
+}
+
+@keyframes float-soft {
+  0%   { transform: translateY(0px); }
+  100% { transform: translateY(-8px); }
+}
+
+/* ════════════════════════════════════════
+   SECTION VARIATION (IMPORTANT)
+   Keeps it from looking copy-paste
+════════════════════════════════════════ */
+
+/* Hero = strongest (like cover) */
+#inv-hero {
+  --deco-size: 260px;
+  --deco-opacity: 0.65;
+}
+
+/* Middle sections = lighter */
+#details-section,
+#map-section,
+#rsvp-section,
+#wishes-section {
+  --deco-size: 180px;
+  --deco-opacity: 0.45;
+}
+
+/* End section = slightly stronger again */
+#ty-section {
+  --deco-size: 220px;
+  --deco-opacity: 0.55;
 }
