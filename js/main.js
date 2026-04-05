@@ -30,8 +30,8 @@
  * The anon key is SAFE to commit — it is read-only by default and
  * protected by Row Level Security (RLS) policies on each table.
  */
-const SUPABASE_URL      = 'YOUR_SUPABASE_URL_HERE';       // ← CHANGE THIS
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';  // ← CHANGE THIS
+const SUPABASE_URL      = 'https://ywbfdvidoqojvfihzlxv.supabase.co';       // ← CHANGE THIS
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3YmZkdmlkb3FvanZmaWh6bHh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NjkwNDQsImV4cCI6MjA4OTU0NTA0NH0.oqewT7iXg0fpHcGB4vJrvw_9ix9okGAe8w38206d8_Y';  // ← CHANGE THIS
 
 /**
  * Event date/time in ISO 8601 format with timezone offset.
