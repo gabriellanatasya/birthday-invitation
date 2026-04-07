@@ -202,54 +202,41 @@ function openInvitation() {
   const cover = document.getElementById('cover');
   const inv   = document.getElementById('invitation');
 
-  // 1. Start the fade animation
-  cover.style.transition = 'opacity 0.9s, transform 0.9s';
-  cover.style.opacity    = '0';
-  cover.style.transform  = 'scale(1.04)';
+  // 👇 Prepare invitation but KEEP IT HIDDEN
+  inv.style.display = 'block';
+  inv.style.visibility = 'hidden';
 
-  setTimeout(() => {
-    // 2. Disable smooth scrolling temporarily to prevent "sliding"
-    document.documentElement.style.scrollBehavior = 'auto';
-    
-    // 3. Switch the visibility
-    cover.style.display = 'none';
-    inv.style.display   = 'block';
-    document.body.classList.remove('locked');
-
-    // 4. Force the scroll to top multiple times to fight the browser's auto-jump
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-
-    // 5. Use requestAnimationFrame to ensure we stay at the top after the first render
+  // 👇 Wait for browser to fully layout everything
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
+
+      // 👇 Force top BEFORE anything is visible
       window.scrollTo(0, 0);
-      
-      // 6. Re-enable smooth scroll after 100ms
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      // 👇 NOW fade out cover
+      cover.style.transition = 'opacity 0.6s ease';
+      cover.style.opacity = '0';
+
       setTimeout(() => {
-        document.documentElement.style.scrollBehavior = 'smooth';
-      }, 100);
+        cover.style.display = 'none';
+
+        // 👇 Reveal invitation AFTER everything is stable
+        inv.style.visibility = 'visible';
+
+        // Init stuff AFTER visible
+        startCountdown();
+        initReveal();
+        applyMaxPaxToForm(guestMaxPax);
+        loadWishes();
+        createInvitationDecorations();
+        initDecoReveal();
+        checkExistingRSVP();
+
+      }, 600);
     });
-
-    // 7. Initialize everything else
-    startCountdown();
-    initReveal();
-    applyMaxPaxToForm(guestMaxPax);
-    loadWishes();
-    createInvitationDecorations();
-    initDecoReveal();
-    checkExistingRSVP();
-
-    // 8. FINALLY, load the map after the user has been at the top for a moment
-    // This prevents the iframe from ever causing a jump.
-    setTimeout(() => {
-      const mapFrame = document.getElementById('map-frame');
-      if (mapFrame && mapFrame.dataset.src) {
-        mapFrame.src = mapFrame.dataset.src;
-      }
-    }, 1000);
-
-  }, 900);
+  });
 }
 
 
