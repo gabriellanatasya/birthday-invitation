@@ -258,6 +258,12 @@
 ════════════════════════════════════════ */
 #rsvp-section .s-title { color: var(--rose); }
 #rsvp-section .s-label { color: var(--gold-dark); }
+#rsvp-section .section {
+  min-height: 420px; /* adjust to match your form height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 .rsvp-note {
   color: var(--rose-mid);

@@ -7,7 +7,13 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
-
+<script>
+  // Force browser to start at top BEFORE anything renders
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  window.scrollTo(0, 0);
+</script>
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/base.css"/>
   <link rel="stylesheet" href="css/cover.css"/>
@@ -164,8 +170,11 @@
         Go to Google Maps → your venue → Share → Embed a map → copy the src URL.
       -->
       <iframe
+      id="map-frame"
         class="map-frame"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3957.7624905058346!2d112.7345464750833!3d-7.267847171412204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7fbe023643461%3A0xe6c74c7a432f169c!2sDouble%20Happiness%20International%20Restaurant!5e0!3m2!1sen!2sid!4v1775391007899!5m2!1sen!2sid"
+        tabindex="-1"
+        loading="lazy"
+        data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3957.7624906709552!2d112.73225047942731!3d-7.267847152667519!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7fbe023643461%3A0xe6c74c7a432f169c!2sDouble%20Happiness%20International%20Restaurant!5e0!3m2!1sen!2sid!4v1775569905891!5m2!1sen!2sid"
         allowfullscreen="" loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
         title="Event Location">
@@ -175,6 +184,7 @@
     <!-- ── 5. RSVP ── -->
     <div id="rsvp-section">
       <div class="section">
+         <div id="rsvp-form">
         <p class="s-label reveal">Reservation</p>
         <h2 class="s-title reveal">Will You Join Us?</h2>
         <div class="pk-line reveal" style="opacity:0.5"></div>
@@ -222,7 +232,7 @@
         <button class="btn-submit reveal" onclick="submitRSVP()">
           <span>Confirm Attendance</span>
         </button>
-
+      </div>
         <div class="success-msg" id="rsvp-success">
           <p>Thank you! Your reservation has been received. ✦</p>
         </div>
@@ -274,9 +284,9 @@
         <!-- ← CHANGE: bank name, account number, account holder -->
         <div class="bank-card reveal">
           <p class="bank-name">BCA — Bank Central Asia</p>
-          <p class="bank-num">1234 5678 90</p>
+          <p class="bank-num">1250522955</p>
           <p class="bank-holder">a/n Yunis</p>
-          <button class="copy-btn" onclick="copyText('1234567890', this)">Copy Account Number</button>
+          <button class="copy-btn" onclick="copyText('1250522955', this)">Copy Account Number</button>
         </div>
 
         <!-- Bank account 2 -->

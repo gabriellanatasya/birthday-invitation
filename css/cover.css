@@ -5,6 +5,10 @@
    ============================================================ */
 
 
+#invitation {
+  display: none;
+  min-height: 100vh;
+}
 /* ── COVER WRAPPER ── */
 #cover {
   min-height: 100vh;
@@ -12,12 +16,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
   overflow: hidden;
   /* Warm cream — matches the reference card's background */
   background: linear-gradient(160deg, #fdf7f0 0%, #faeaed 50%, #fdf3e8 100%);
 }
-
 
 /* ── HORIZONTAL LINEN LINES (reference image texture) ── */
 #cover::before {
@@ -342,3 +347,8 @@
 
 #cover-status.invalid  { color: var(--rose);      animation: none; opacity: 1; }
 #cover-status.no-param { color: var(--gold-dark);  animation: none; opacity: 0.75; }
+
+body.locked {
+  overflow: hidden;
+  height: 100vh;
+}
