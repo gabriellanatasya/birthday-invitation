@@ -22,6 +22,9 @@
   overflow: hidden;
   /* Warm cream — matches the reference card's background */
   background: linear-gradient(160deg, #fdf7f0 0%, #faeaed 50%, #fdf3e8 100%);
+  -webkit-transform: translate3d(0,0,0); /* Forces GPU rendering */
+  isolation: isolate;                   /* Prevents z-index bleeding */
+  background-color: #fdf7f0;            /* Ensure there is a solid fallback color */
 }
 
 /* ── HORIZONTAL LINEN LINES (reference image texture) ── */
