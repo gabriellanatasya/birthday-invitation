@@ -202,39 +202,49 @@ function openInvitation() {
   const cover = document.getElementById('cover');
   const inv   = document.getElementById('invitation');
 
-  // 👇 Prepare invitation but KEEP IT HIDDEN
+  // 1. Prepare invitation (hidden but takes space)
   inv.style.display = 'block';
-  inv.style.visibility = 'hidden';
+  inv.style.opacity = '0';
 
-  // 👇 Wait for browser to fully layout everything
+  // 2. Let browser layout EVERYTHING first
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
 
-      // 👇 Force top BEFORE anything is visible
+      // 3. Force scroll to top BEFORE showing anything
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
+      document.body.classList.remove('locked');
 
-      // 👇 NOW fade out cover
+      // 4. Crossfade instead of hide/show
+      inv.style.transition   = 'opacity 0.6s ease';
       cover.style.transition = 'opacity 0.6s ease';
+
+      inv.style.opacity   = '1';
       cover.style.opacity = '0';
+             // Init AFTER visible (no flash)
+       setTimeout(() => {
+  startCountdown();
+}, 50);
 
       setTimeout(() => {
         cover.style.display = 'none';
 
-        // 👇 Reveal invitation AFTER everything is stable
-        inv.style.visibility = 'visible';
 
-        // Init stuff AFTER visible
-        startCountdown();
         initReveal();
+        checkExistingRSVP();
         applyMaxPaxToForm(guestMaxPax);
-        loadWishes();
+                setTimeout(() => {
+  const mapFrame = document.getElementById('map-frame');
+  if (mapFrame && mapFrame.dataset.src) {
+    mapFrame.src = mapFrame.dataset.src;
+  }
+}, 500);
         createInvitationDecorations();
         initDecoReveal();
-        checkExistingRSVP();
-
+        loadWishes();
       }, 600);
+
     });
   });
 }
